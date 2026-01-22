@@ -1,0 +1,97 @@
+{
+    "title": "短剧",
+    "icon": "VideoCamera",
+    "path": "/app/shortplay/admin",
+    "sort": 2000,
+    "children": [
+        {
+            "title": "剧本列表",
+            "icon": "Tickets",
+            "path": "/app/shortplay/admin/Drama/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "更新状态",
+                    "show": false,
+                    "path": "/app/shortplay/admin/Drama/indexUpdateState"
+                }
+            ]
+        },
+        {
+            "title": "分集列表",
+            "icon": "Tickets",
+            "path": "/app/shortplay/admin/DramaEpisode/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "创建分集",
+                    "path": "/app/shortplay/admin/DramaEpisode/create",
+                    "show": false,
+                    "component": "form"
+                },
+                {
+                    "title": "编辑分集",
+                    "show": false,
+                    "path": "/app/shortplay/admin/DramaEpisode/update",
+                    "component": "form"
+                }
+            ]
+        },
+        {
+            "title": "演员列表",
+            "icon": "User",
+            "path": "/app/shortplay/admin/Actor/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "创建演员",
+                    "path": "/app/shortplay/admin/Actor/create",
+                    "show": false,
+                    "component": "form"
+                },
+                {
+                    "title": "编辑演员",
+                    "show": false,
+                    "path": "/app/shortplay/admin/Actor/update",
+                    "component": "form"
+                },
+                {
+                    "title": "更新演员状态",
+                    "show": false,
+                    "path": "/app/shortplay/admin/Actor/indexUpdateState"
+                }
+            ]
+        },
+        {
+            "title": "风格列表",
+            "icon": "MagicStick",
+            "path": "/app/shortplay/admin/Style/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "创建风格",
+                    "path": "/app/shortplay/admin/Style/create",
+                    "show": false,
+                    "component": "form"
+                },
+                {
+                    "title": "编辑风格",
+                    "show": false,
+                    "path": "/app/shortplay/admin/Style/update",
+                    "component": "form"
+                },
+                {
+                    "title": "更新风格状态",
+                    "show": false,
+                    "path": "/app/shortplay/admin/Style/indexUpdateState"
+                }
+            ]
+        },
+        {
+            "title": "Settings",
+            "icon": "Setting",
+            "path": "/app/shortplay/admin/Setting/basic",
+            "component": "form"
+        }
+    ]
+}

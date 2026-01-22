@@ -1,0 +1,53 @@
+{
+    "title": "User",
+    "icon": "User",
+    "path": "/app/user/admin",
+    "sort": 1000,
+    "children": [
+        {
+            "title": "User List",
+            "icon": "User",
+            "path": "/app/user/admin/User/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "Create User",
+                    "path": "/app/user/admin/User/create",
+                    "show": false,
+                    "component": "form"
+                },
+                {
+                    "title": "Edit User",
+                    "show": false,
+                    "path": "/app/user/admin/User/update",
+                    "component": "form"
+                },
+                {
+                    "title": "Update Status",
+                    "show": false,
+                    "path": "/app/user/admin/User/indexUpdateState",
+                    "component": ""
+                }
+            ]
+        },
+        
+        {
+            "title": "Settings",
+            "icon": "Setting",
+            "path": "/app/user/admin/Setting/basic",
+            "component": "form"
+        },
+        {
+            "title": "余额账单",
+            "icon": "User",
+            "path": "/app/user/admin/Balance/index",
+            "component": "table"
+        },
+        {
+            "title": "积分账单",
+            "icon": "User",
+            "path": "/app/user/admin/Points/index",
+            "component": "table"
+        }
+    ]
+}

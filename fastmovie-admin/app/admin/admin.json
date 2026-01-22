@@ -1,0 +1,286 @@
+[
+    {
+        "title": "Dashboard",
+        "icon": "House",
+        "path": "Index",
+        "sort": 0,
+        "children": [
+            {
+                "title": "Console",
+                "icon": "ElementPlus",
+                "path": "Index/control",
+                "component": "databoard"
+            }
+        ]
+    },
+    {
+        "title": "Functional",
+        "icon": "Stopwatch",
+        "path": "Functional",
+        "children": [
+            {
+                "title": "Administrator",
+                "icon": "User",
+                "path": "Admin/group",
+                "component": "table",
+                "children": [
+                    {
+                        "title": "Staff List",
+                        "path": "Admin/index",
+                        "component": "table",
+                        "children": [
+                            {
+                                "title": "Create Administrator",
+                                "path": "Admin/create",
+                                "show": false,
+                                "component": "form"
+                            },
+                            {
+                                "title": "Edit Administrator",
+                                "show": false,
+                                "path": "Admin/update",
+                                "component": "form"
+                            },
+                            {
+                                "title": "Delete Administrator",
+                                "show": false,
+                                "path": "Admin/delete"
+                            },
+                            {
+                                "title": "Update Status",
+                                "show": false,
+                                "path": "Admin/indexUpdateState"
+                            },
+                            {
+                                "title": "Move Role",
+                                "component": "form",
+                                "show": false,
+                                "path": "Admin/moveRole"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Role Management",
+                "icon": "PriceTag",
+                "path": "AdminRole/group",
+                "component": "table",
+                "children": [
+                    {
+                        "title": "Role List",
+                        "path": "AdminRole/index",
+                        "component": "table",
+                        "children": [
+                            {
+                                "title": "Create Role",
+                                "path": "AdminRole/create",
+                                "show": false,
+                                "component": "form"
+                            },
+                            {
+                                "title": "Edit Role",
+                                "show": false,
+                                "path": "AdminRole/update",
+                                "component": "form"
+                            },
+                            {
+                                "title": "Delete Role",
+                                "show": false,
+                                "path": "AdminRole/delete"
+                            },
+                            {
+                                "title": "Update Status",
+                                "show": false,
+                                "path": "AdminRole/indexUpdateState"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Systems",
+        "icon": "Setting",
+        "path": "System",
+        "children": [
+            {
+                "title": "Basic Settings",
+                "icon": "Setting",
+                "path": "System/basic",
+                "component": "form"
+            },
+            {
+                "title": "Upload Settings",
+                "icon": "UploadFilled",
+                "path": "System/upload",
+                "component": "form"
+            },
+            {
+                "title": "SMS Settings",
+                "icon": "Message",
+                "path": "System/sms",
+                "component": "form"
+            },
+            {
+                "title": "Payment Management",
+                "icon": "Wallet",
+                "path": "Payment/group",
+                "children": [
+                    {
+                        "title": "Payment Settings",
+                        "path": "Payment/index",
+                        "component": "payment-form"
+                    },
+                    {
+                        "title": "Payment Template",
+                        "path": "PaymentTemplate/index",
+                        "component": "table",
+                        "children": [
+                            {
+                                "title": "Create Payment Template",
+                                "path": "PaymentTemplate/create",
+                                "show": false,
+                                "component": "form"
+                            },
+                            {
+                                "title": "Edit Payment Template",
+                                "path": "PaymentTemplate/update",
+                                "show": false,
+                                "component": "form"
+                            },
+                            {
+                                "title": "Delete Payment Template",
+                                "path": "PaymentTemplate/delete",
+                                "show": false,
+                                "component": ""
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Platform Management",
+                "icon": "Monitor",
+                "path": "Platform/index",
+                "children": [
+                    {
+                        "title": "微信",
+                        "path": "Platform/wechat",
+                        "children": [
+                            {
+                                "title": "WeChat Mini Program",
+                                "path": "Platform/wechat_miniproject",
+                                "component": "form"
+                            },
+                            {
+                                "title": "WeChat Official Account",
+                                "path": "Platform/wechat_official_account",
+                                "component": "form"
+                            },
+                            {
+                                "title": "WeChat Open Platform",
+                                "path": "Platform/wechat_open_platform",
+                                "component": "form"
+                            },
+                            {
+                                "title": "App Platform",
+                                "path": "Platform/wechat_app_platform",
+                                "component": "form"
+                            },
+                            {
+                                "title": "H5 Platform",
+                                "path": "Platform/wechat_h5_platform",
+                                "component": "form"
+                            },
+                            {
+                                "title": "PC Platform",
+                                "path": "Platform/wechat_pc_platform",
+                                "component": "form"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "支付宝",
+                        "path": "Platform/alipay",
+                        "children": [
+                            {
+                                "title": "Alipay Mini Program",
+                                "path": "Platform/alipay_miniproject",
+                                "component": "form"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "Public Permissions",
+        "path": "Public",
+        "show": false,
+        "children": [
+            {
+                "title": "Edit Profile",
+                "show": false,
+                "path": "Admin/updateSelf",
+                "component": "form"
+            },
+            {
+                "title": "Get Profile",
+                "show": false,
+                "path": "Admin/getSelfInfo",
+                "component": ""
+            },
+            {
+                "title": "Logout",
+                "show": false,
+                "path": "Public/outLogin",
+                "component": ""
+            },
+            {
+                "title": "Get Upload Categories",
+                "path": "Uploads/getUploadClassify",
+                "show": false,
+                "component": ""
+            },
+            {
+                "title": "Edit Upload Category",
+                "path": "Uploads/saveClassify",
+                "show": false,
+                "component": ""
+            },
+            {
+                "title": "Delete Upload Category",
+                "path": "Uploads/deleteClassify",
+                "show": false,
+                "component": ""
+            },
+            {
+                "title": "Upload File",
+                "path": "Uploads/upload",
+                "show": false,
+                "component": ""
+            },
+            {
+                "title": "Delete Upload File",
+                "path": "Uploads/deleteUploads",
+                "show": false,
+                "component": ""
+            },
+            {
+                "title": "Edit Upload File",
+                "path": "Uploads/updateUploads",
+                "show": false,
+                "component": ""
+            },
+            {
+                "title": "Get Upload File List",
+                "path": "Uploads/getList",
+                "show": false,
+                "component": ""
+            }
+        ]
+    }
+]

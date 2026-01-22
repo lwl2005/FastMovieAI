@@ -1,0 +1,12 @@
+{
+    "name": "notification",
+    "title": "通知系统",
+    "version": "0.0.1",
+    "description": "通知系统",
+    "author": {
+        "name": "余心",
+        "email": "unknown.renloong@gmail.com"
+    },
+    "plugin":{
+    }
+}

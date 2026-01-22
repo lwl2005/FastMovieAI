@@ -1,0 +1,52 @@
+{
+    "title": "模型",
+    "icon": "Grid",
+    "path": "/app/Model/control",
+    "sort":999,
+    "children": [
+        {
+            "title": "模型管理",
+            "path": "/app/model/control/Model/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "创建模型",
+                    "path": "/app/model/control/Model/create",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "编辑模型",
+                    "path": "/app/model/control/Model/update",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "删除模型",
+                    "path": "/app/model/control/Model/delete",
+                    "component": "form",
+                    "show": false
+                }
+            ]
+        },
+        {
+            "title": "任务列表",
+            "path": "/app/model/control/Task/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "编辑模型",
+                    "path": "/app/model/control/Task/update",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "删除模型",
+                    "path": "/app/model/control/Task/delete",
+                    "component": "form",
+                    "show": false
+                }
+            ]
+        }
+    ]
+}

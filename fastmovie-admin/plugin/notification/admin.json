@@ -1,0 +1,54 @@
+{
+    "title": "Notification",
+    "icon": "Bell",
+    "path": "/app/notification/admin",
+    "sort": 8000,
+    "children": [
+        {
+            "title": "Message List",
+            "icon": "Message",
+            "path": "/app/notification/admin/Message/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "Message List",
+                    "path": "/app/notification/admin/Message/index",
+                    "component": "table"
+                },
+                {
+                    "title": "Push Test",
+                    "path": "/app/notification/admin/Message/pushTest",
+                    "show": false,
+                    "component": "form"
+                }
+            ]
+        },
+        {
+            "title": "System Configuration",
+            "icon": "Setting",
+            "path": "/app/notification/admin/System",
+            "children": [
+                {
+                    "title": "Notification Strategy",
+                    "path": "/app/notification/admin/System/strategy",
+                    "component": "form"
+                },
+                {
+                    "title": "Site Push",
+                    "path": "/app/notification/admin/System/push",
+                    "component": "form"
+                },
+                {
+                    "title": "WeChat Template",
+                    "path": "/app/notification/admin/System/wechat_template",
+                    "component": "form"
+                },
+                {
+                    "title": "SMS Template",
+                    "path": "/app/notification/admin/System/sms_template",
+                    "component": "form"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "name": "interface-example",
+    "title": "应用示例项目",
+    "version": "0.0.1",
+    "description": "应用市场",
+    "author": {
+        "name": "余心",
+        "email": "unknown.renloong@gmail.com"
+    }
+}

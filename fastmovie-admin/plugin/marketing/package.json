@@ -1,0 +1,10 @@
+{
+    "name": "marketing",
+    "title": "营销",
+    "version": "0.0.1",
+    "description": "各种营销工具",
+    "author": {
+        "name": "余心",
+        "email": "unknown.renloong@gmail.com"
+    }
+}

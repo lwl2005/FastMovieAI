@@ -1,0 +1,78 @@
+{
+    "title": "User",
+    "icon": "User",
+    "path": "/app/user/control",
+    "sort": 1,
+    "children": [
+        {
+            "title": "User List",
+            "icon": "User",
+            "path": "/app/user/control/User/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "Create User",
+                    "path": "/app/user/control/User/create",
+                    "show": false,
+                    "component": "form"
+                },
+                {
+                    "title": "Edit User",
+                    "show": false,
+                    "path": "/app/user/control/User/update",
+                    "component": "form"
+                },
+                {
+                    "title": "Update Status",
+                    "show": false,
+                    "path": "/app/user/control/User/indexUpdateState",
+                    "component": ""
+                }
+            ]
+        },
+        {
+            "title": "用户钱包",
+            "icon": "ShoppingCart",
+            "path": "/app/finance/control/Wallet/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "余额充值",
+                    "path": "/app/finance/control/Wallet/recharge",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "积分充值",
+                    "path": "/app/finance/control/Wallet/rechargePoints",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "临时积分充值",
+                    "path": "/app/finance/control/Wallet/rechargeTmpPoints",
+                    "component": "form",
+                    "show": false
+                }
+            ]
+        },
+        {
+            "title": "余额账单",
+            "icon": "User",
+            "path": "/app/user/control/Balance/index",
+            "component": "table"
+        },
+        {
+            "title": "积分账单",
+            "icon": "User",
+            "path": "/app/user/control/Points/index",
+            "component": "table"
+        },
+        {
+            "title": "注册设置",
+            "icon": "Setting",
+            "path": "/app/user/control/System/register",
+            "component": "form"
+        }
+    ]
+}

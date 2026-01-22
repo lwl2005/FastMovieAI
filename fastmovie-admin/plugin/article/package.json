@@ -1,0 +1,12 @@
+{
+    "name": "article",
+    "title": "文章系统",
+    "version": "0.0.1",
+    "description": "文章系统",
+    "author": {
+        "name": "余心",
+        "email": "unknown.renloong@gmail.com"
+    },
+    "plugin":{
+    }
+}

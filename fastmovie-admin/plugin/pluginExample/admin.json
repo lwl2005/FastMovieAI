@@ -1,0 +1,48 @@
+{
+    "title": "示例",
+    "icon": "Operation",
+    "path": "/app/pluginExample/admin",
+    "sort": 3999,
+    "children": [
+        {
+            "title": "大屏",
+            "path": "/app/pluginExample/admin/Databoard/index",
+            "component": "databoard"
+        },
+        {
+            "title": "表单",
+            "path": "/app/pluginExample/admin/Form/index",
+            "component": "form"
+        },
+        {
+            "title": "分组表单",
+            "path": "/app/pluginExample/admin/GroupForm/index",
+            "component": "form"
+        },
+        {
+            "title": "审核表单",
+            "path": "/app/pluginExample/admin/Examine/index",
+            "component": "examine"
+        },
+        {
+            "title": "表格",
+            "path": "/app/pluginExample/admin/Table/index",
+            "component": "table"
+        },
+        {
+            "title": "图片",
+            "path": "/app/pluginExample/admin/Images/index",
+            "component": "images"
+        },
+        {
+            "title": "信息展示",
+            "path": "/app/pluginExample/admin/Info/index",
+            "component": "info"
+        },
+        {
+            "title": "配置",
+            "path": "/app/pluginExample/admin/Settings/basic",
+            "component": "form"
+        }
+    ]
+}

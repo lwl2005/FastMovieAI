@@ -1,0 +1,18 @@
+{
+    "title": "模型",
+    "icon": "Grid",
+    "path": "/app/model/admin",
+    "sort": 999,
+    "children": [
+        {
+            "title": "模型管理",
+            "path": "/app/model/admin/Model/index",
+            "component": "table"
+        },
+        {
+            "title": "任务列表",
+            "path": "/app/model/admin/Task/index",
+            "component": "table"
+        }
+    ]
+}

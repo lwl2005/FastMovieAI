@@ -1,0 +1,39 @@
+{
+    "title": "渠道",
+    "icon": "ElementPlus",
+    "path": "/app/control/admin",
+    "sort": 2,
+    "children": [
+        {
+            "title": "User List",
+            "icon": "User",
+            "path": "/app/control/admin/User/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "Create User",
+                    "path": "/app/control/admin/User/create",
+                    "show": false,
+                    "component": "form"
+                },
+                {
+                    "title": "Edit User",
+                    "show": false,
+                    "path": "/app/control/admin/User/update",
+                    "component": "form"
+                },
+                {
+                    "title": "Update Status",
+                    "show": false,
+                    "path": "/app/control/admin/User/indexUpdateState",
+                    "component": ""
+                }
+            ]
+        },
+        {
+            "title": "系统设置",
+            "path": "/app/control/admin/settings/state",
+            "component": "form"
+        }
+    ]
+}

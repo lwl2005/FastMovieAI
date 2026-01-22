@@ -1,0 +1,40 @@
+{
+    "title": "财务",
+    "icon": "Wallet",
+    "path": "/app/finance/admin",
+    "sort":4999,
+    "children":[
+        {
+            "title":"控制台",
+            "icon":"ElementPlus",
+            "path": "/app/finance/admin/Index/index",
+            "component": "databoard"
+        },
+        {
+            "title":"订单列表",
+            "icon":"ShoppingCart",
+            "path": "/app/finance/admin/Orders/index",
+            "component": "table",
+            "children":[
+                {
+                    "title":"实收",
+                    "path": "/app/finance/admin/Orders/real_money",
+                    "component": "form",
+                    "show":false
+                },
+                {
+                    "title":"收付",
+                    "path": "/app/finance/admin/Orders/receipt_money",
+                    "component": "form",
+                    "show":false
+                }
+            ]
+        },
+        {
+            "title":"交易设置",
+            "icon":"Setting",
+            "path": "/app/finance/admin/Settings/basic",
+            "component": "form"
+        }
+    ]
+}

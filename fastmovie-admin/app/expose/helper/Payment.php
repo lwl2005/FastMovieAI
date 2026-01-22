@@ -1,0 +1,188 @@
+<?php
+
+namespace app\expose\helper;
+
+use app\expose\enum\PaymentChannels;
+use app\expose\enum\Platform;
+use app\expose\enum\State;
+use app\expose\helper\Uploads as HelperUploads;
+use app\model\PaymentConfig;
+use app\model\PaymentTemplate;
+use Exception;
+use plugin\control\expose\helper\Uploads;
+use Yansongda\Pay\Pay;
+use support\Log;
+
+class Payment
+{
+    public static function get($platform, $channels, int|null $channels_uid = null)
+    {
+        $where = [];
+        $where[] = ['platform', '=', $platform];
+        $where[] = ['channels', '=', $channels];
+        if ($channels_uid) {
+            $where[] = ['channels_uid', '=', $channels_uid];
+        }
+        $PaymentConfig = PaymentConfig::where($where)->find();
+        if (!$PaymentConfig) {
+            throw new Exception('支付配置不存在');
+        }
+        $PaymentTemplate = PaymentTemplate::where(['id' => $PaymentConfig->template_id, 'channels_uid' => $channels_uid])->find();
+        if (!$PaymentTemplate) {
+            throw new Exception('支付模板不存在');
+        }
+        return $PaymentTemplate->value;
+    }
+    public static function platform(int|null $channels_uid = null)
+    {
+        $platform = request()->platform;
+        $where = [];
+        $where[] = ['platform', '=', $platform];
+        $where[] = ['state', '=', State::YES['value']];
+        if ($channels_uid) {
+            $where[] = ['channels_uid', '=', $channels_uid];
+        }
+        $PaymentConfig = PaymentConfig::where($where)->select();
+        $data = [];
+        foreach ($PaymentConfig as $item) {
+            $enum = PaymentChannels::get($item->channels);
+            $temp = [
+                'id' => $item->id,
+                'label' => $enum['label'],
+                'enum' => $enum,
+            ];
+            if ($item->is_default == State::YES['value']) {
+                $temp['default'] = 1;
+            }
+            $data[] = $temp;
+        }
+        return $data;
+    }
+    public static function getIntegralName()
+    {
+        $integral = '积分';
+        try {
+            $platform = request()->platform;
+            if (!$platform) {
+                $platform = Platform::PC['value'];
+            }
+            $Payment = self::get($platform, PaymentChannels::INTEGRAL['value']);
+            if (isset($Payment['display_name'])) {
+                $integral = $Payment['display_name'];
+            }
+        } catch (\Throwable $th) {
+        }
+        return $integral;
+    }
+    public static function createPayment($model, $id)
+    {
+        $PaymentConfig = PaymentConfig::where(['id' => $id])->find();
+        if (!$PaymentConfig) {
+            throw new Exception('支付配置不存在');
+        }
+        switch ($PaymentConfig->channels) {
+            case PaymentChannels::WXPAY['value']:
+                return self::wxPay($model, $PaymentConfig);
+            case PaymentChannels::ALIPAY['value']:
+                break;
+            case PaymentChannels::INTEGRAL['value']:
+                break;
+            case PaymentChannels::BALANCE['value']:
+                break;
+        }
+        throw new \Exception('未知支付方式');
+    }
+    public static function wxPay($model, $PaymentConfig)
+    {
+        switch ($PaymentConfig->platform) {
+            case Platform::PC['value']:
+                return self::wxPayPc($model, $PaymentConfig);
+            case Platform::H5['value']:
+                return self::wxPayH5($model, $PaymentConfig);
+            case Platform::WECHAT_OFFICIAL_ACCOUNT['value']:
+                return self::wxPayOFFICIAL_ACCOUNT($model, $PaymentConfig);
+            case Platform::APP['value']:
+                return self::wxPayApp($model, $PaymentConfig);
+            case Platform::WECHAT_MINIAPP['value']:
+                return self::wxPayMiniapp($model, $PaymentConfig);
+        }
+    }
+    public static function wxPayPc($model, $PaymentConfig)
+    {
+        $PaymentTemplate = PaymentTemplate::where(['id' => $PaymentConfig->template_id])->find();
+        if (!$PaymentTemplate) {
+            throw new Exception('支付模板不存在');
+        }
+        $Payment = $PaymentTemplate->value;
+        $notify_url = $Payment['notify_url'];
+        # 判断是否为“/”结尾
+        if (substr($notify_url, -1) == '/') {
+            $notify_url = substr($notify_url, 0, -1);
+        }
+        $notify_url .= '/notify/wechat/' . $model->plugin . '/' . $PaymentTemplate->id;
+        $mch_secret_cert = null;
+        if ($PaymentTemplate->channels_uid) {
+            $mch_secret_cert = Uploads::downloadTemp($Payment['ssl_key'], 'mch_secret_cert_' . $PaymentTemplate->id);
+        } else {
+            $mch_secret_cert = base_path(HelperUploads::path($Payment['ssl_key']));
+        }
+        $mch_public_cert_path = null;
+        if ($PaymentTemplate->channels_uid) {
+            $mch_public_cert_path = Uploads::downloadTemp($Payment['ssl_cert'], 'mch_public_cert_path_' . $PaymentTemplate->id);
+        } else {
+            $mch_public_cert_path = base_path(HelperUploads::path($Payment['ssl_cert']));
+        }
+        $config = [
+            'wechat' => [
+                'default' => [
+                    // 必填-商户号
+                    'mch_id' => $Payment['mch_id'],
+                    // 选填-v2商户私钥
+                    'mch_secret_key_v2' => '',
+                    // 必填-v3商户秘钥
+                    'mch_secret_key' => $Payment['mch_key'],
+                    // 必填-商户私钥 字符串或路径
+                    'mch_secret_cert' => $mch_secret_cert,
+                    // 必填-商户公钥证书路径
+                    'mch_public_cert_path' => $mch_public_cert_path,
+                    // 必填
+                    'notify_url' => $notify_url,
+                    // 选填-公众号 的 app_id
+                    'mp_app_id' => $Payment['appid'],
+                    // 选填-默认为正常模式。可选为： MODE_NORMAL, MODE_SERVICE
+                    'mode' => Pay::MODE_NORMAL,
+                ]
+            ],
+            'logger' => [
+                'enable' => true,
+                'file' => runtime_path('logs/wechat-pay-' . date('Y-m-d') . '.log'),
+                'level' => 'info', // 建议生产环境等级调整为 info，开发环境为 debug
+                'type' => 'single', // optional, 可选 daily.
+                'max_file' => 30, // optional, 当 type 为 daily 时有效，默认 30 天
+            ],
+            'http' => [
+                'timeout' => 5.0,
+                'connect_timeout' => 5.0,
+            ],
+        ];
+        $order = [
+            'out_trade_no' => $model->trade,
+            'amount' => [
+                'total' => getenv('DEV') === 'true' ? 1 : $model->price * 100,
+            ],
+            'description' => $model->title,
+            'time_expire' => date('c', strtotime($model->expire_time)),
+        ];
+        Log::info('wxPayPc', ['order' => $order, 'config' => $config]);
+        $Pay = Pay::wechat($config)->scan($order);
+        return [
+            'plugin' => $model->plugin,
+            'trade' => $model->trade,
+            'qrcode' => $Pay->code_url,
+        ];
+    }
+    public static function wxPayH5($model, $PaymentConfig) {}
+    public static function wxPayOFFICIAL_ACCOUNT($model, $PaymentConfig) {}
+    public static function wxPayApp($model, $PaymentConfig) {}
+    public static function wxPayMiniapp($model, $PaymentConfig) {}
+}

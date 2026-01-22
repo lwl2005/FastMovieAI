@@ -1,0 +1,144 @@
+{
+    "title": "营销",
+    "icon": "Discount",
+    "path": "/app/marketing/control",
+    "sort": 5,
+    "children": [
+        {
+            "title": "控制台",
+            "icon": "ElementPlus",
+            "path": "/app/marketing/control/Index/index",
+            "component": "databoard"
+        },
+        {
+            "title": "优惠券",
+            "icon": "Coupon",
+            "path": "/app/marketing/control/Coupon/index",
+            "component": "table",
+            "show":false,
+            "children": [
+                {
+                    "title": "创建优惠券",
+                    "path": "/app/marketing/control/Coupon/create",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "发行优惠券码",
+                    "path": "/app/marketing/control/Coupon/release",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "设置优惠券状态",
+                    "path": "/app/marketing/control/Coupon/indexUpdateState",
+                    "show": false
+                }
+            ]
+        },
+        {
+            "title": "优惠券码",
+            "icon": "BarCode",
+            "path": "/app/marketing/control/CouponCode/index",
+            "component": "table",
+            "show":false,
+            "children": [
+                {
+                    "title": "删除券码",
+                    "path": "/app/marketing/control/CouponCode/delete",
+                    "show": false
+                },
+                {
+                    "title": "作废券码",
+                    "path": "/app/marketing/control/CouponCode/zuofe",
+                    "show": false
+                }
+            ]
+        },
+        {
+            "title": "积分套餐",
+            "icon": "CreditCard",
+            "path": "/app/marketing/control/Points/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "创建积分套餐",
+                    "path": "/app/marketing/control/Points/create",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "编辑积分套餐",
+                    "path": "/app/marketing/control/Points/update",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "删除积分套餐",
+                    "path": "/app/marketing/control/Points/delete",
+                    "show": false
+                },
+                {
+                    "title": "设置积分套餐状态",
+                    "path": "/app/marketing/control/Points/indexUpdateState",
+                    "show": false
+                }
+            ]
+        },
+        {
+            "title": "会员套餐",
+            "icon": "CreditCard",
+            "path": "/app/marketing/control/Plan/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "创建会员套餐",
+                    "path": "/app/marketing/control/Plan/create",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "编辑会员套餐",
+                    "path": "/app/marketing/control/Plan/update",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "会员套餐价格列表",
+                    "path": "/app/marketing/control/Plan/priceList",
+                    "component": "table",
+                    "show": false,
+                    "children": [
+                        {
+                            "title": "创建会员套餐价格",
+                            "path": "/app/marketing/control/Plan/createPrice",
+                            "component": "form",
+                            "show": false
+                        },
+                        {
+                            "title": "编辑会员套餐价格",
+                            "path": "/app/marketing/control/Plan/updatePrice",
+                            "component": "form",
+                            "show": false
+                        },
+                        {
+                            "title": "删除会员套餐价格",
+                            "path": "/app/marketing/control/Plan/deletePrice",
+                            "show": false
+                        }
+                    ]
+                },
+                {
+                    "title": "删除会员套餐",
+                    "path": "/app/marketing/control/Plan/delete",
+                    "show": false
+                },
+                {
+                    "title": "设置会员套餐状态",
+                    "path": "/app/marketing/control/Plan/indexUpdateState",
+                    "show": false
+                }
+            ]
+        }
+    ]
+}

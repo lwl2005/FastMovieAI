@@ -1,0 +1,23 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # 如果访问的是目录，自动加载 index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^$ index.php [L]
+    
+    # 禁止直接访问 .env 等敏感文件
+    <FilesMatch "^\.">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+</IfModule>
+
+# 设置默认首页
+DirectoryIndex index.php
+
+# 防止目录浏览
+Options -Indexes
+
+# 设置字符编码
+AddDefaultCharset UTF-8

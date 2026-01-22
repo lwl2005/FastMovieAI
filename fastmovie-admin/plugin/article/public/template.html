@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{$web_logo}">
+    <link rel="apple-touch-icon" href="{$web_logo}">
+    <link rel="apple-touch-icon-precomposed" href="{$web_logo}">
+    <title>{$web_title}</title>
+    <meta name="description" content="{$description}">
+    <meta name="keywords" content="{$keywords}">
+    <link rel="stylesheet" href="/app/article/static/index.css">
+</head>
+<body>
+    <div>
+        <h1 class="title">{$title}</h1>
+        <div class="info">
+            <span class="author">{$source}</span>
+            <span class="time">{$release_time}</span>
+        </div>
+    </div>
+    <div class="content">{$content|raw}</div>
+</body>
+</html>

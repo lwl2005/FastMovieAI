@@ -1,0 +1,57 @@
+{
+    "title": "营销",
+    "icon": "Discount",
+    "path": "/app/marketing/admin",
+    "sort":4999,
+    "children": [
+        {
+            "title": "控制台",
+            "icon": "ElementPlus",
+            "path": "/app/marketing/admin/Index/index",
+            "component": "databoard"
+        },
+        {
+            "title": "优惠券",
+            "icon": "Coupon",
+            "path": "/app/marketing/admin/Coupon/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "创建优惠券",
+                    "path": "/app/marketing/admin/Coupon/create",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "发行优惠券码",
+                    "path": "/app/marketing/admin/Coupon/release",
+                    "component": "form",
+                    "show": false
+                },
+                {
+                    "title": "设置优惠券状态",
+                    "path": "/app/marketing/admin/Coupon/indexUpdateState",
+                    "show": false
+                }
+            ]
+        },
+        {
+            "title": "优惠券码",
+            "icon": "BarCode",
+            "path": "/app/marketing/admin/CouponCode/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "删除券码",
+                    "path": "/app/marketing/admin/CouponCode/delete",
+                    "show": false
+                },
+                {
+                    "title": "作废券码",
+                    "path": "/app/marketing/admin/CouponCode/zuofe",
+                    "show": false
+                }
+            ]
+        }
+    ]
+}

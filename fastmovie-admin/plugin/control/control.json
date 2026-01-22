@@ -1,0 +1,271 @@
+[
+    {
+        "title": "首页",
+        "icon": "House",
+        "path": "/app/control/control",
+        "sort": 0,
+        "children": [
+            {
+                "title": "控制台",
+                "icon": "ElementPlus",
+                "path": "/app/control/control/Index/control",
+                "component": "databoard"
+            }
+        ]
+    },
+    {
+        "title": "Systems",
+        "icon": "Setting",
+        "path": "/app/control/control/System",
+        "children": [
+            {
+                "title": "Basic Settings",
+                "icon": "Setting",
+                "path": "/app/control/control/System/basic",
+                "component": "form"
+            },
+            {
+                "title": "壹定开放平台",
+                "icon": "Setting",
+                "path": "/app/control/control/System/yidevs",
+                "component": "form"
+            },
+            {
+                "title": "Upload Settings",
+                "icon": "UploadFilled",
+                "path": "/app/control/control/System/upload",
+                "component": "form"
+            },
+            {
+                "title": "SMS Settings",
+                "icon": "Message",
+                "path": "/app/control/control/System/sms",
+                "component": "form"
+            },
+            {
+                "title": "域名管理",
+                "icon": "Link",
+                "path": "/app/control/control/Domain/index",
+                "component": "table",
+                "children": [
+                    {
+                        "title": "绑定域名",
+                        "path": "/app/control/control/Domain/create",
+                        "component": "form",
+                        "show": false
+                    },
+                    {
+                        "title": "编辑域名",
+                        "path": "/app/control/control/Domain/update",
+                        "component": "form",
+                        "show": false
+                    }
+                ]
+            },
+            {
+                "title": "Payment Management",
+                "icon": "Wallet",
+                "path": "/app/control/control/Payment/group",
+                "children": [
+                    {
+                        "title": "Payment Settings",
+                        "path": "/app/control/control/Payment/index",
+                        "component": "payment-form"
+                    },
+                    {
+                        "title": "Payment Template",
+                        "path": "/app/control/control/PaymentTemplate/index",
+                        "component": "table",
+                        "children": [
+                            {
+                                "title": "Create Payment Template",
+                                "path": "/app/control/control/PaymentTemplate/create",
+                                "show": false,
+                                "component": "form"
+                            },
+                            {
+                                "title": "Edit Payment Template",
+                                "path": "/app/control/control/PaymentTemplate/update",
+                                "show": false,
+                                "component": "form"
+                            },
+                            {
+                                "title": "Delete Payment Template",
+                                "path": "/app/control/control/PaymentTemplate/delete",
+                                "show": false,
+                                "component": ""
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Platform Management",
+                "icon": "Monitor",
+                "path": "/app/control/control/Platform/index",
+                "children": [
+                    {
+                        "title": "微信",
+                        "path": "/app/control/control/Platform/wechat",
+                        "children": [
+                            {
+                                "title": "WeChat Mini Program",
+                                "path": "/app/control/control/Platform/wechat_miniproject",
+                                "component": "form"
+                            },
+                            {
+                                "title": "WeChat Official Account",
+                                "path": "/app/control/control/Platform/wechat_official_account",
+                                "component": "form"
+                            },
+                            {
+                                "title": "WeChat Open Platform",
+                                "path": "/app/control/control/Platform/wechat_open_platform",
+                                "component": "form"
+                            },
+                            {
+                                "title": "App Platform",
+                                "path": "/app/control/control/Platform/wechat_app_platform",
+                                "component": "form"
+                            },
+                            {
+                                "title": "H5 Platform",
+                                "path": "/app/control/control/Platform/wechat_h5_platform",
+                                "component": "form"
+                            },
+                            {
+                                "title": "PC Platform",
+                                "path": "/app/control/control/Platform/wechat_pc_platform",
+                                "component": "form"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "支付宝",
+                        "path": "/app/control/control/Platform/alipay",
+                        "children": [
+                            {
+                                "title": "Alipay Mini Program",
+                                "path": "/app/control/control/Platform/alipay_miniproject",
+                                "component": "form"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "权限管理",
+                "icon": "Setting",
+                "path": "/app/control/control/Permission",
+                "component": "table",
+                "children": [
+                    {
+                        "title": "用户列表",
+                        "path": "/app/control/control/User/index",
+                        "component": "table",
+                        "children": [
+                            {
+                                "title": "创建用户",
+                                "path": "/app/control/control/User/create",
+                                "component": "form",
+                                "show": false
+                            },
+                            {
+                                "title": "编辑用户",
+                                "path": "/app/control/control/User/updateUser",
+                                "component": "form",
+                                "show": false
+                            },
+                            {
+                                "title": "删除用户",
+                                "path": "/app/control/control/User/delete",
+                                "component": "form",
+                                "show": false
+                            }
+                        ]
+                    },
+                    {
+                        "title": "角色管理",
+                        "path": "/app/control/control/Role/index",
+                        "component": "table",
+                        "children": [
+                            {
+                                "title": "创建角色",
+                                "path": "/app/control/control/Role/create",
+                                "component": "form",
+                                "show": false
+                            },
+                            {
+                                "title": "编辑角色",
+                                "path": "/app/control/control/Role/update",
+                                "component": "form",
+                                "show": false
+                            },
+                            {
+                                "title": "删除角色",
+                                "path": "/app/control/control/Role/delete",
+                                "component": "form",
+                                "show": false
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "公共权限",
+        "path": "/app/control/control/Public",
+        "show": false,
+        "children": [
+            {
+                "title": "更新用户信息",
+                "path": "/app/control/control/User/update",
+                "show": false,
+                "component": "form"
+            },
+            {
+                "title": "获取自己的信息",
+                "show": false,
+                "path": "/app/control/control/User/getInfo",
+                "component": ""
+            },
+            {
+                "title": "退出登录",
+                "show": false,
+                "path": "/app/control/control/Public/outLogin",
+                "component": ""
+            },
+            {
+                "title": "获取上传分类",
+                "path": "/app/control/control/Uploads/getUploadClassify",
+                "show": false,
+                "component": ""
+            },
+            {
+                "title": "上传文件",
+                "path": "/app/control/control/Uploads/upload",
+                "show": false,
+                "component": ""
+            },
+            {
+                "title": "删除上传文件",
+                "path": "/app/control/control/Uploads/deleteUploads",
+                "show": false,
+                "component": ""
+            },
+            {
+                "title": "编辑上传文件",
+                "path": "/app/control/control/Uploads/updateUploads",
+                "show": false,
+                "component": ""
+            },
+            {
+                "title": "获取上传文件列表",
+                "path": "/app/control/control/Uploads/getList",
+                "show": false,
+                "component": ""
+            }
+        ]
+    }
+]
