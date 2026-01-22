@@ -33,6 +33,7 @@ class ComposerStaticInit31dbebff699f6ce4d696d736e935f142
         '35fab96057f1bf5e7aba31a8a6d5fdde' => __DIR__ . '/..' . '/topthink/think-orm/stubs/load_stubs.php',
         '988d02680beedec88d52f2787b2d2007' => __DIR__ . '/..' . '/yansongda/artful/src/Functions.php',
         'ef65a1626449d89d0811cf9befce46f0' => __DIR__ . '/..' . '/illuminate/events/functions.php',
+        'cd5441689b14144e5573bf989ee47b34' => __DIR__ . '/..' . '/qcloud/cos-sdk-v5/src/Common.php',
         '8c783b3a3de2f6d9177022b5ccdcc841' => __DIR__ . '/..' . '/yansongda/pay/src/Functions.php',
         '6de935212a66b0a512dd63d31d6e9f44' => __DIR__ . '/../..' . '/support/helpers.php',
     );
@@ -112,6 +113,7 @@ class ComposerStaticInit31dbebff699f6ce4d696d736e935f142
         'Q' => 
         array (
             'Qiniu\\' => 6,
+            'Qcloud\\Cos\\' => 11,
         ),
         'P' => 
         array (
@@ -163,8 +165,11 @@ class ComposerStaticInit31dbebff699f6ce4d696d736e935f142
         ),
         'G' => 
         array (
+            'GuzzleHttp\\UriTemplate\\' => 23,
             'GuzzleHttp\\Psr7\\' => 16,
             'GuzzleHttp\\Promise\\' => 19,
+            'GuzzleHttp\\Command\\Guzzle\\' => 26,
+            'GuzzleHttp\\Command\\' => 19,
             'GuzzleHttp\\' => 11,
             'GrahamCampbell\\ResultType\\' => 26,
         ),
@@ -304,7 +309,8 @@ class ComposerStaticInit31dbebff699f6ce4d696d736e935f142
         ),
         'TencentCloud\\' => 
         array (
-            0 => __DIR__ . '/..' . '/tencentcloud/tencentcloud-sdk-php/src/TencentCloud',
+            0 => __DIR__ . '/..' . '/tencentcloud/sms/src/TencentCloud',
+            1 => __DIR__ . '/..' . '/tencentcloud/common/src/TencentCloud',
         ),
         'Symfony\\Polyfill\\Php80\\' => 
         array (
@@ -393,6 +399,10 @@ class ComposerStaticInit31dbebff699f6ce4d696d736e935f142
         'Qiniu\\' => 
         array (
             0 => __DIR__ . '/..' . '/qiniu/php-sdk/src/Qiniu',
+        ),
+        'Qcloud\\Cos\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/qcloud/cos-sdk-v5/src',
         ),
         'Psr\\SimpleCache\\' => 
         array (
@@ -518,6 +528,10 @@ class ComposerStaticInit31dbebff699f6ce4d696d736e935f142
         array (
             0 => __DIR__ . '/..' . '/illuminate/bus',
         ),
+        'GuzzleHttp\\UriTemplate\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/uri-template/src',
+        ),
         'GuzzleHttp\\Psr7\\' => 
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
@@ -525,6 +539,14 @@ class ComposerStaticInit31dbebff699f6ce4d696d736e935f142
         'GuzzleHttp\\Promise\\' => 
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/promises/src',
+        ),
+        'GuzzleHttp\\Command\\Guzzle\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/guzzle-services/src',
+        ),
+        'GuzzleHttp\\Command\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/command/src',
         ),
         'GuzzleHttp\\' => 
         array (
@@ -648,7 +670,6 @@ class ComposerStaticInit31dbebff699f6ce4d696d736e935f142
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Normalizer' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
         'PhpToken' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/PhpToken.php',
-        'QcloudApi' => __DIR__ . '/..' . '/tencentcloud/tencentcloud-sdk-php/src/QcloudApi/QcloudApi.php',
         'Stringable' => __DIR__ . '/..' . '/myclabs/php-enum/stubs/Stringable.php',
         'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
         'ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
