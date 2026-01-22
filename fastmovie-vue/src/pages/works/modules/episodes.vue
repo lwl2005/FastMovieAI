@@ -3,6 +3,7 @@ import { ResponseCode } from '@/common/const';
 import { $http } from '@/common/http';
 import router from '@/routers';
 import { Action, ElMessage, ElMessageBox, MessageBoxState } from 'element-plus';
+import IconPlaySvg from '@/svg/icon/icon-play.vue';
 const props = withDefaults(defineProps<{
     find: any
 }>(), {
@@ -147,32 +148,47 @@ const handleDeleteEpisode = (item: any) => {
         }
     })
 }
+const handleDownloadEpisode = (item: any) => {
+    const el = document.createElement('a');
+    el.href = item.video_path;
+    el.download = item.drama_id + '_' + item.episode_id + '.mp4';
+    el.target = '_blank';
+    el.click();
+}
 </script>
 <template>
     <div
         class="grid-gap-4 px-10 grid-columns-xxl-8 grid-columns-xl-7 grid-columns-lg-6 grid-columns-md-5 grid-columns-sm-4 grid-columns-xs-3 grid-columns-p-2 grid-columns-p-1">
         <div class="grid-column-1 input-button rounded-4 flex flex-column episode-item"
-            v-for="(item, index) in find.episodes" :key="item.id" @click="handleItemClick(item)">
-            <el-avatar :src="item.cover" class="episode-image">
-                <div class="flex flex-column grid-gap-4 flex-center">
-                    <span class="h10">{{ item.title }}</span>
-                    <span class="h10 text-ellipsis-10 text-info episode-content">{{ item.outline }}</span>
-                </div>
-            </el-avatar>
+            v-for="(item, index) in find.episodes" :key="item.id">
+            <div class="position-relative episode-image">
+                <el-avatar :src="item.cover" class="episode-image">
+                    <div class="flex flex-column grid-gap-4 flex-center pointer" @click.stop="handleItemClick(item)">
+                        <span class="h10">{{ item.title }}</span>
+                        <span class="h10 text-ellipsis-10 text-info episode-content">{{ item.outline }}</span>
+                    </div>
+                </el-avatar>
+                <el-icon class="play-icon pointer" v-if="item.video_path" size="36"
+                    @click="router.push('/play/' + props.find.id + '/' + item.id+'?view=share')">
+                    <IconPlaySvg />
+                </el-icon>
+            </div>
             <div class="flex grid-gap-2 p-4 flex-center episode-title">
                 <span class="font-weight-600">第 {{ item.episode_no }} 集</span>
             </div>
             <el-popover placement="bottom-end" popper-class="episode-popover" width="100px" :teleported="false"
                 @click.stop>
                 <template #reference>
-                    <el-icon class="more-icon" @click.stop>
+                    <el-icon class="more-icon pointer" @click.stop>
                         <More />
                     </el-icon>
                 </template>
                 <div class="flex flex-column grid-gap-2 h10" @click.stop>
-                    <span class="text-center py-2" @click.stop="handleEditEpisode(item, index)">编辑</span>
-                    <span class="text-center py-2" v-if="item.video">下载</span>
-                    <span class="text-center py-2" @click.stop="handleDeleteEpisode(item)">删除</span>
+                    <span class="text-center py-2 pointer" @click.stop="handleItemClick(item)">工程</span>
+                    <span class="text-center py-2 pointer" @click.stop="handleEditEpisode(item, index)">编辑</span>
+                    <span class="text-center py-2 pointer" v-if="item.video_path"
+                        @click.stop="handleDownloadEpisode(item)">下载</span>
+                    <span class="text-center py-2 pointer" @click.stop="handleDeleteEpisode(item)">删除</span>
                 </div>
             </el-popover>
         </div>
@@ -252,7 +268,6 @@ const handleDeleteEpisode = (item: any) => {
 </template>
 <style lang="scss" scoped>
 .episode-item {
-    cursor: pointer;
     position: relative;
     overflow: hidden;
 
@@ -321,6 +336,13 @@ const handleDeleteEpisode = (item: any) => {
         border-radius: 999px;
         opacity: 0;
         transition: opacity 0.3s ease-in-out;
+    }
+
+    .play-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
 }
 </style>

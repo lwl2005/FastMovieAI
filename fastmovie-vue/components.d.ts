@@ -65,6 +65,7 @@ declare module 'vue' {
     XlHeaderUserinfo: typeof import('./src/components/xl-header-userinfo/index.vue')['default']
     XlIcode: typeof import('./src/components/xl-icode/index.vue')['default']
     XlInvitationCode: typeof import('./src/components/xl-invitation-code/index.vue')['default']
+    XlLoading: typeof import('./src/components/xl-loading/index.vue')['default']
     XlModels: typeof import('./src/components/xl-models/index.vue')['default']
     XlNotice: typeof import('./src/components/xl-notice/index.vue')['default']
     XLogin: typeof import('./src/components/x-login/index.vue')['default']
@@ -82,7 +83,6 @@ declare module 'vue' {
     XlUser: typeof import('./src/components/xl-userinfo/modules/xl-user.vue')['default']
     XlUserinfo: typeof import('./src/components/xl-userinfo/index.vue')['default']
     XlUserPoints: typeof import('./src/components/xl-user-points/index.vue')['default']
-    XlUserVip: typeof import('./src/components/xl-user-vip/index.vue')['default']
     XlVoice: typeof import('./src/components/xl-voice/index.vue')['default']
     XVcode: typeof import('./src/components/x-vcode/index.vue')['default']
   }

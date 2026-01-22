@@ -303,7 +303,31 @@ a {
         display: none;
     }
 }
+.x-loading-message-box-modal{
+    .el-overlay-message-box{
+        padding: 0px !important;
+    }
+}
+.x-loading-message-box{
+    --el-messagebox-width: 100vw;
+    --el-messagebox-height: 100vh;
+    --el-messagebox-padding-primary: 0px;
+    --el-messagebox-border-radius: 0px;
+    height: var(--el-messagebox-height);
+    .el-message-box__message {
+        height: var(--el-messagebox-height);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 10px;
+    }
 
+    .el-message-box__btns {
+        display: none;
+    }
+}
 .text-active {
     color: transparent;
     background-clip: text;
@@ -315,7 +339,9 @@ a {
 .bg-active {
     background-image: linear-gradient(to left, #79FFFF 0%, #0DF283 100%);
 }
-
+.el-overlay.el-modal-dialog{
+    backdrop-filter: blur(6px);
+}
 .el-dialog.drama-dialog {
     --el-dialog-width: min(100vw, 500px);
     --el-dialog-padding-primary: 0;
@@ -415,7 +441,10 @@ a {
 
 .tabs-segmented.el-segmented {
     --el-border-radius-base: 8px;
-    --el-segmented-bg-color: var(--el-bg-color-overlay);
+    --el-segmented-bg-color:rgba(30, 30, 30, 0.4) !important;
+    --el-border-color:rgba(255, 255, 255, 0.3);
+    --el-segmented-item-hover-bg-color:rgba(255, 255, 255, 0.1);
+    --el-segmented-item-active-bg-color:rgba(255, 255, 255, 0.1);
     --el-segmented-padding: 4px;
     --el-segmented-item-selected-color: var(--el-bg-color);
     --el-segmented-item-selected-bg-color: #FFFFFF;
@@ -432,7 +461,7 @@ a {
     }
 
     .el-segmented__item-selected {
-        background-image: linear-gradient(to left, #79FFFF 0%, #0DF283 100%);
+        // background-image: linear-gradient(to left, #79FFFF 0%, #0DF283 100%);
     }
 }
 

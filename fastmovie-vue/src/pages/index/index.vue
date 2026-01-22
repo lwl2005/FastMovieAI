@@ -14,6 +14,7 @@ import IconUploadImageSvg from '@/svg/icon/icon-upload-image.vue';
 import { usePush } from '@/composables/usePush'
 import ScriptSvg from '@/svg/icon/video-file.vue'
 import DramaSvg from '@/svg/icon/drama.vue'
+import { useLoading } from '@/composables/useLoading'
 
 const userStore = useUserStore()
 const { USERINFO } = useRefs(userStore);
@@ -24,7 +25,7 @@ const stateStore = useStateStore()
 const login = useLogin()
 const form = reactive({
 	model: '',
-	script: 'script',
+	script: 'drama',
 	title: '',
 	cover: '',
 	description: '',
@@ -104,6 +105,7 @@ const addListener = () => {
 	if (userStore.hasLogin()) {
 		subscribe('private-generatecreatedrama-' + USERINFO.value?.user, (res: any) => {
 			if (uuids.includes(res.uuid)) {
+				xlLoading.close();
 				if (res.drama_id) {
 					ElMessage.success(res.msg);
 					router.push('/works/' + res.drama_id)
@@ -113,6 +115,87 @@ const addListener = () => {
 			}
 		});
 	}
+}
+const xlLoading = useLoading({
+	title: '剧本创作中，预计3-5分钟~',
+	tips: '退出页面，剧本会继续生成',
+	auto: true,
+	list: [
+		{
+			title: '解析剧本中...',
+			start: 0,
+			end: 20,
+			progress: 20
+		},
+		{
+			title: '正在创作剧本卖点...',
+			start: 20,
+			end: 25,
+			progress: 10,
+		},
+		{
+			title: '正在创作剧本爽点...',
+			start: 25,
+			end: 30,
+			progress: 10,
+		},
+		{
+			title: '正在创作剧本主线...',
+			start: 30,
+			end: 35,
+			progress: 10,
+		},
+		{
+			title: '正在创作剧本关系...',
+			start: 35,
+			end: 40,
+			progress: 10,
+		},
+		{
+			title: '正在创作剧本描述...',
+			start: 40,
+			end: 45,
+			progress: 10,
+		},
+		{
+			title: '正在创作剧本背景...',
+			start: 45,
+			end: 50,
+			progress: 10,
+		},
+		{
+			title: '正在创作剧本大纲...',
+			start: 50,
+			end: 9999,
+			progress: 20,
+		},
+	],
+	showCancelButton: true,
+	showConfirmButton: true,
+	cancelButtonText: '返回首页',
+	confirmButtonText: '去作品广场',
+	confirmButtonClick: () => {
+		xlLoading.close();
+		router.push('/square');
+	},
+	cancelButtonClick: () => {
+		xlLoading.close();
+	}
+});
+const resetForm = () => {
+	form.model = '';
+	form.script = 'script';
+	form.title = '';
+	form.cover = '';
+	form.description = '';
+	form.import = '';
+	form.prompt = '';
+	form.style = '';
+	form.aspect_ratio = '9:16';
+	form.episode_sum = 20;
+	form.episode_duration = 60;
+	styleFind.value = { id: '' };
+	selectedModel.value = { id: '' };
 }
 const submit = () => {
 	if (!userStore.hasLogin()) {
@@ -126,20 +209,21 @@ const submit = () => {
 		...form,
 	}).then((res: any) => {
 		if (res.code === ResponseCode.SUCCESS) {
+			resetForm();
 			if (res.data.drama_id) {
-				loading.value = false;
 				router.push('/works/' + res.data.drama_id)
 			} else {
+				xlLoading.open();
 				uuids.push(res.data.uuid);
 			}
 		} else {
-			loading.value = false;
 			ElMessage.error(res.msg);
 		}
 	}).catch(() => {
-		loading.value = false;
 		ElMessage.error('提交失败');
-	})
+	}).finally(() => {
+		loading.value = false;
+	});
 }
 const showDramaCreateDialog = () => {
 	if (!userStore.hasLogin()) {
@@ -204,9 +288,6 @@ const handleUploadError = () => {
 }
 const dramaCreateDialogVisible = ref(false);
 const dramaUploadDialogVisible = ref(false);
-const showUpload = computed(() => {
-	return !form.description.length;
-})
 const modelButtonRef = ref();
 const modelPopoverRef = ref();
 const selectedModel = ref<any>({});
@@ -238,7 +319,7 @@ onUnmounted(() => {
 		<span class="head-title">一句话生成一部短剧</span>
 		<span class="head-subtitle">剧本、分镜、画面、配音、剪辑，一站式智能生成</span>
 		<el-segmented v-model="form.script" :disabled="loading"
-			:options="[{ label: '创意模式', value: 'script', icon: ScriptSvg }, { label: '剧本模式', value: 'drama', icon: DramaSvg }]"
+			:options="[{ label: '剧本模式', value: 'drama', icon: DramaSvg }, { label: '创意模式', value: 'script', icon: ScriptSvg }]"
 			class="tabs-segmented border" @change="handleScriptChange">
 			<template #default="{ item }">
 				<div class="flex flex-center grid-gap-2">
@@ -249,7 +330,7 @@ onUnmounted(() => {
 				</div>
 			</template>
 		</el-segmented>
-		<div class="input-box" v-if="form.script === 'script'" v-loading="loading">
+		<div class="input-box" v-loading="loading">
 			<div class="rounded-4 p-4 input-bg">
 				<el-mention ref="mentionRef" v-model="form.prompt" :autosize="{ minRows: 6, maxRows: 50 }"
 					popper-class="prompt-popper" type="textarea" :prefix="mentionPrefix"
@@ -276,11 +357,11 @@ onUnmounted(() => {
 					</template>
 				</el-mention>
 				<div class="flex grid-gap-4 flex-center mt-4">
-					<div class="flex flex-center input-button  p-3">
+					<!-- <div class="flex flex-center input-button  p-3" @click="dramaUploadDialogVisible = true">
 						<el-icon size="20" color="var(--el-color-white)">
 							<Plus />
 						</el-icon>
-					</div>
+					</div> -->
 					<div class="flex flex-center input-button  p-3" ref="modelButtonRef">
 						<template v-if="!form.model">
 							<el-icon size="20" color="var(--el-color-white)">
@@ -299,7 +380,6 @@ onUnmounted(() => {
 								</el-icon>
 							</div>
 						</template>
-
 					</div>
 					<div class="flex flex-center input-button  p-3" ref="actorButtonRef">
 						<el-icon size="20" color="var(--el-color-white)">
@@ -327,8 +407,8 @@ onUnmounted(() => {
 					</div>
 
 					<xl-aspect-ratio v-model="form.aspect_ratio" />
-					<xl-episode-sum v-model="form.episode_sum" />
-					<xl-episode-duration v-model="form.episode_duration" />
+					<xl-episode-sum v-if="form.script !== 'script'"  v-model="form.episode_sum" />
+					<xl-episode-duration v-if="form.script !== 'script'"  v-model="form.episode_duration" />
 					<div class="flex-1"></div>
 					<div class="flex flex-center grid-gap-2 input-button " style="width: 40px; height: 40px;"
 						@click="submit">
@@ -340,11 +420,13 @@ onUnmounted(() => {
 				</div>
 			</div>
 		</div>
-		<div class="input-box rounded-4" v-if="form.script === 'drama'" v-loading="loading">
-			<div class="rounded-4 p-4 bg-overlay">
+		<!-- <div class="input-box " v-if="form.script === 'drama'" v-loading="loading">
+			<div class="rounded-4 p-4 ">
 				<el-input type="textarea" v-model="form.description"
-					:autosize="{ minRows: showUpload ? 2 : 4, maxRows: 20 }" class="input-textarea" maxlength="200"
-					show-word-limit placeholder="输入短剧描述..." @keydown="handleKeyDown" />
+					@focus="stateStore.setState('InputFocusState', true)"
+					@blur="stateStore.setState('InputFocusState', false)" :autosize="{ minRows:6, maxRows: 30 }"
+					class="input-textarea" maxlength="200" show-word-limit placeholder="输入短剧描述..."
+					@keydown="handleKeyDown" />
 				<div class="flex grid-gap-2 flex-y-center py-4" v-show="showUpload">
 					<span>或者</span>
 					<el-icon color="var(--el-color-success)">
@@ -353,19 +435,31 @@ onUnmounted(() => {
 					<span class="text-success h10 pointer" @click="dramaUploadDialogVisible = true">点击上传剧本</span>
 				</div>
 				<div class="flex grid-gap-4 flex-center mt-4">
-					<div class="flex flex-center grid-gap-2 input-button  py-2 px-6" ref="modelButtonRef">
+					<div class="flex flex-center input-button  p-3"  @click="dramaUploadDialogVisible = true">
+						<el-icon size="20" color="var(--el-color-white)">
+							<Plus />
+						</el-icon>
+					</div>
+					<div class="flex flex-center input-button  p-3" ref="modelButtonRef">
 						<template v-if="!form.model">
-							<el-icon alt="模型" class="icon-model">
+							<el-icon size="20" color="var(--el-color-white)">
 								<IconModelSvg />
 							</el-icon>
-							<span class="h10">模型</span>
 						</template>
 						<template v-else>
-							<el-avatar :src="selectedModel.icon" :alt="selectedModel.name" shape="square"
-								class="icon-model"></el-avatar>
-							<span class="h10">{{ selectedModel.name }}</span>
+							<div class="flex flex-center grid-gap-1">
+								<el-avatar :src="selectedModel.icon" :alt="selectedModel.name" shape="circle"
+									class="icon-model"></el-avatar>
+								<span class="h10 text-ellipsis-1">{{ selectedModel.name }}</span>
+								<el-icon size="16" color="var(--el-text-color-secondary)"
+									class="model-item-selected-icon font-weight-600"
+									@click.stop="form.model = ''; selectedModel = { id: '' }">
+									<Close />
+								</el-icon>
+							</div>
 						</template>
 					</div>
+
 					<div class="flex flex-center grid-gap-2 input-button  py-2 px-6" ref="styleButtonRef">
 						<template v-if="!styleFind.id">
 							<el-icon alt="风格" class="icon-style">
@@ -381,6 +475,25 @@ onUnmounted(() => {
 							</el-icon>
 						</template>
 					</div>
+					<div class="flex flex-center input-button  p-3" ref="styleButtonRef">
+						<template v-if="!styleFind.id">
+							<el-icon size="20" color="var(--el-color-white)">
+								<IconStyleSvg />
+							</el-icon>
+						</template>
+						<template v-else>
+							<div class="flex flex-center grid-gap-1">
+								<el-avatar :src="styleFind.image" :alt="styleFind.name" shape="circle"
+									class="icon-style"></el-avatar>
+								<span class="h10 text-ellipsis-1">{{ styleFind.name }}</span>
+								<el-icon size="16" color="var(--el-text-color-secondary)"
+									class="model-item-selected-icon font-weight-600"
+									@click.stop="styleFind.id = ''; styleFind = { id: '' }">
+									<Close />
+								</el-icon>
+							</div>
+						</template>
+					</div>
 					<xl-aspect-ratio v-model="form.aspect_ratio" />
 					<xl-episode-sum v-model="form.episode_sum" />
 					<xl-episode-duration v-model="form.episode_duration" />
@@ -394,17 +507,17 @@ onUnmounted(() => {
 					</div>
 				</div>
 			</div>
-		</div>
-		<el-popover ref="actorPopoverRef" popper-class="model-popover" :virtual-ref="actorButtonRef" virtual-triggering
-			placement="bottom-start" width="min(100vw,880px)" trigger="click">
+		</div> -->
+		<el-popover ref="actorPopoverRef" :show-arrow="false" popper-class="model-popover" :virtual-ref="actorButtonRef"
+			virtual-triggering placement="bottom-start" width="min(100vw,880px)" trigger="click">
 			<xl-actor @select="handleActorSelect" />
 		</el-popover>
-		<el-popover ref="stylePopoverRef" popper-class="model-popover" :virtual-ref="styleButtonRef" virtual-triggering
-			placement="bottom-start" width="min(100vw,640px)" trigger="click">
+		<el-popover ref="stylePopoverRef" :show-arrow="false" popper-class="model-popover" :virtual-ref="styleButtonRef"
+			virtual-triggering placement="bottom-start" width="min(100vw,640px)" trigger="click">
 			<xl-style v-model="form.style" @select="handleStyleSelect" />
 		</el-popover>
-		<el-popover ref="modelPopoverRef" popper-class="model-popover" :virtual-ref="modelButtonRef" virtual-triggering
-			placement="bottom" width="min(100vw,380px)" trigger="click">
+		<el-popover ref="modelPopoverRef" :show-arrow="false" popper-class="model-popover" :virtual-ref="modelButtonRef"
+			virtual-triggering placement="bottom" width="min(100vw,380px)" trigger="click">
 			<xl-models v-model="form.model" @select="handleModelSelect" scene="creative_script" />
 		</el-popover>
 
@@ -522,27 +635,6 @@ onUnmounted(() => {
 	background-image: linear-gradient(to right, var(--el-text-color-secondary), #FFFFFF, var(--el-text-color-secondary));
 }
 
-.tabs-segmented {
-	--el-border-radius-base: 8px;
-	--el-segmented-bg-color: var(--el-bg-color-overlay);
-	--el-segmented-padding: 4px;
-	--el-segmented-item-selected-bg-color: #FFFFFF;
-	--el-segmented-item-selected-color: var(--el-bg-color);
-	font-weight: 600;
-
-	:deep(.el-segmented__item) {
-		padding: 8px 0;
-		width: 120px;
-	}
-
-	:deep(.el-segmented__group) {
-		gap: 10px;
-	}
-
-	// :deep(.el-segmented__item-selected) {
-	// 	background-image: linear-gradient(to left, #79FFFF 0%, #0DF283 100%);
-	// }
-}
 
 .input-box {
 	width: 100%;
@@ -555,7 +647,7 @@ onUnmounted(() => {
 	backdrop-filter: blur(8px);
 	-webkit-backdrop-filter: blur(10px);
 	// margin-top: 10px;
-	margin-bottom:350px;
+	margin-bottom: 350px;
 
 	.el-mention {
 		--el-input-border: none;

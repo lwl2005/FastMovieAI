@@ -8,6 +8,7 @@ use Webman\MiddlewareInterface;
 use Webman\Http\Response;
 use Webman\Http\Request;
 use app\expose\exception\Exception;
+use support\Log;
 
 /**
  * 前台应用必须引用此中间件，否者无法验证用户两步验证
@@ -29,6 +30,7 @@ class Twofa implements MiddlewareInterface
                 $response = $this->exception($th);
             } else {
                 if (config('app.debug')) {
+                    Log::error($th->getTraceAsString());
                     throw $th;
                 } else {
                     $response = response($th->getMessage(), 500);

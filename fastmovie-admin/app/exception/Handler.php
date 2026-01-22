@@ -7,7 +7,7 @@ use Throwable;
 use Webman\Exception\ExceptionHandler;
 use Webman\Http\Request;
 use Webman\Http\Response;
-
+use support\Log;
 class Handler extends ExceptionHandler
 {
     use Json;
@@ -22,6 +22,7 @@ class Handler extends ExceptionHandler
             return $this->exception($exception);
         }
         if (config('app.debug')) {
+            Log::error($exception->getTraceAsString());
             return parent::render($request, $exception);
         }
         return new Response(500, [], $exception->getMessage());

@@ -23,6 +23,7 @@ class DomainMapping implements MiddlewareInterface
 
     public function process(Request $request, callable $next): Response
     {
+        $headersKeys=['Authorization','X-ICODE','X-Platform','lang','X-developer','content-type'];
         // 1. 优先 Origin
         if ($origin = $request->header('origin')) {
             $domain = parse_url($origin, PHP_URL_HOST);
@@ -35,12 +36,20 @@ class DomainMapping implements MiddlewareInterface
         } else {
             return response('Domain not found', 401);
         }
-
+        $corsHeaders = [
+            'Access-Control-Allow-Origin'      => $origin,
+            'Access-Control-Allow-Credentials' => 'true',
+            'Access-Control-Allow-Methods'     => 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+            'Access-Control-Allow-Headers'     => strtolower(implode(',', $headersKeys)),
+        ];
         // 1. LRU 进程缓存
         $userId = self::$cache->get($domain);
         if ($userId) {
             $request->channels_uid = $userId;
-            return $next($request);
+            $response = $next($request);
+            # 允许跨域
+            $response->withHeaders($corsHeaders);
+            return $response;
         }
 
         // 2. Redis Hash
@@ -48,7 +57,10 @@ class DomainMapping implements MiddlewareInterface
         if ($userId) {
             self::$cache->set($domain, $userId);
             $request->channels_uid = $userId;
-            return $next($request);
+            $response = $next($request);
+            # 允许跨域
+            $response->withHeaders($corsHeaders);
+            return $response;
         }
 
         // 3. MySQL 兜底
@@ -58,7 +70,10 @@ class DomainMapping implements MiddlewareInterface
             Redis::hSet('domain_map', $domain, $PluginChannelsDomain->channels_uid);
             self::$cache->set($domain, $PluginChannelsDomain->channels_uid);
             $request->channels_uid = $PluginChannelsDomain->channels_uid;
-            return $next($request);
+            $response = $next($request);
+            # 允许跨域
+            $response->withHeaders($corsHeaders);
+            return $response;
         }
         return response('Domain not found', 401);
     }

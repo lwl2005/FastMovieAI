@@ -2,7 +2,6 @@
 import { $http } from '@/common/http';
 import { ResponseCode } from '@/common/const';
 import { ElMessage } from 'element-plus';
-import { useRefs, useWebConfigStore } from '@/stores';
 import IconModelSvg from '@/svg/icon/icon-model.vue';
 import IconPointsSvg from '@/svg/icon/icon-points.vue';
 import IconPropSvg from '@/svg/icon/icon-actor.vue';
@@ -10,8 +9,6 @@ import IconPropThreeViewSvg from '@/svg/icon/icon-actor-three-view.vue';
 import IconImageSvg from '@/svg/icon/icon-image.vue';
 import IconUploadImageSvg from '@/svg/icon/icon-upload-image.vue';
 import { usePoints } from '@/composables/usePoints';
-const webConfigStore = useWebConfigStore();
-const { WEBCONFIG } = useRefs(webConfigStore);
 const emit = defineEmits(['success']);
 const propDialogVisible = ref(false);
 const propForm = reactive<any>({
@@ -37,8 +34,30 @@ const propFormRules = reactive({
     three_view_model_id: [{ required: true, message: '请选择三维模型', trigger: 'change' }],
     description: [{ required: true, message: '请输入备注', trigger: 'change' }],
 })
+const showForm = ref(false);
 const openPropCreateDialog = (prop?: any, drama_id?: string | number, episode_id?: string | number) => {
     propDialogVisible.value = true;
+    showForm.value = true;
+    propImageModel.value = 'description';
+    nextTick(() => {
+        if (prop) {
+            propForm.id = prop.id;
+            propForm.image = prop.image;
+            propForm.three_view_image = prop.three_view_image;
+            propForm.name = prop.name;
+            propForm.description = prop.description;
+            propForm.drama_id = drama_id;
+            propForm.episode_id = episode_id;
+        } else {
+            propForm.drama_id = drama_id;
+            propForm.episode_id = episode_id;
+        }
+    })
+}
+const uploadProp = (prop?: any, drama_id?: string | number, episode_id?: string | number) => {
+    propDialogVisible.value = true;
+    showForm.value = false;
+    propImageModel.value = 'upload';
     nextTick(() => {
         if (prop) {
             propForm.id = prop.id;
@@ -197,22 +216,24 @@ const propImageModel = ref('description');
 const uploadImageModel = ref('image');
 defineExpose({
     open: openPropCreateDialog,
+    upload: uploadProp,
     close: cancelPropDialog,
     subscribe: subscribe
 })
 </script>
 <template>
     <div>
-        <el-dialog v-model="propDialogVisible" class="generate-scene-dialog" draggable width="min(100%,840px)"
+        <el-dialog v-model="propDialogVisible" class="generate-scene-dialog" draggable :width="showForm?'min(100%,840px)':'min(100%,426px)'"
             @close="cancelPropDialog">
             <template #header>
-                <span class="font-weight-600" v-if="!propForm.id">创建物品</span>
+                <span class="font-weight-600" v-if="showForm">上传物品</span>
+                <span class="font-weight-600" v-else-if="!propForm.id">创建物品</span>
                 <span class="font-weight-600" v-else>编辑物品</span>
             </template>
             <el-form label-position="top" :model="propForm" :rules="propFormRules" ref="propFormRef" class="prop-form"
                 :disabled="propForm.status_enum.value !== 'initializing'">
                 <div class="flex grid-gap-4 flex-y-flex-start">
-                    <div class="flex-1 grid-columns-6 grid-gap-4">
+                    <div class="flex-1 grid-columns-6 grid-gap-4" v-if="showForm">
                         <el-form-item label="物品名称" prop="title" class="grid-column-6">
                             <el-input v-model="propForm.name" placeholder="请输入物品名称"
                                 class="prop-form-input bg-overlay" />

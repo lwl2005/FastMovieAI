@@ -2,7 +2,7 @@
 import { ResponseCode } from '@/common/const';
 import { $http } from '@/common/http';
 import { useUserStore } from '@/stores';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import IconStyleSvg from '@/svg/icon/icon-style.vue'
 import IconUploadImageSvg from '@/svg/icon/icon-upload-image.vue';
 const userStore = useUserStore();
@@ -35,7 +35,7 @@ const openUploadCoverDialog = () => {
     uploadCoverDialogVisible.value = true;
 }
 const uploadCoverLoading = ref(false);
-const beforeUpload = (file: File) => {
+const beforeUpload = (_file: File) => {
     if (!userStore.hasLogin()) {
         uploadCoverRef.value?.clearFiles();
         return false;
@@ -72,24 +72,9 @@ const handleUploadSuccess = (response: any) => {
         uploadCoverLoading.value = false;
     }
 }
-const handleUploadError = (error: any) => {
+const handleUploadError = () => {
     uploadCoverRef.value?.clearFiles();
     uploadCoverLoading.value = false;
-}
-const handleDelete = (item: any) => {
-    ElMessageBox.confirm('确定删除该作品吗？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-    }).then(() => {
-        $http.post('/app/shortplay/api/Works/delete', {
-            id: item.id,
-        }).then((res: any) => {
-            if (res.code === ResponseCode.SUCCESS) {
-                ElMessage.success('删除作品成功');
-            }
-        });
-    });
 }
 const modelButtonRef = ref();
 const modelPopoverRef = ref();

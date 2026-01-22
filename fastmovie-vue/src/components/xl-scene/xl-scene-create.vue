@@ -169,7 +169,7 @@ defineExpose({
                     <div class="episode-tabs"
                         style="--el-anchor-active-color: var(--el-color-success);--el-anchor-marker-bg-color: var(--el-color-success);">
                         <span
-                            v-for="(item, index) in episodes.find((item: any) => item.id === selectedEpisodeId)?.scenes"
+                            v-for="item in episodes.find((item: any) => item.id === selectedEpisodeId)?.scenes"
                             :key="item.id" class="episode-tabs-item"
                             :class="{ 'is-active': item.id === selectedEpisodeId }" @click="handleSelectScene(item)">
                             #{{ item.id }} {{ item.title }}·{{ item.scene_location }}

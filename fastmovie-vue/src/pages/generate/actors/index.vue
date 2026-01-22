@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ResponseCode } from '@/common/const';
-import { setClipboard } from '@/common/functions';
 import { $http } from '@/common/http';
 import IconPrevStepSvg from '@/svg/icon/icon-prev-step.vue';
 import IconNextStepSvg from '@/svg/icon/icon-next-step.vue';
@@ -11,7 +10,7 @@ import IconReplaceSvg from '@/svg/icon/icon-replace.vue';
 import { useWebConfigStore, useUserStore, useRefs } from '@/stores';
 import { useRoute } from 'vue-router';
 import router from '@/routers';
-import { Loading } from '@element-plus/icons-vue';
+import { Loading, UploadFilled } from '@element-plus/icons-vue';
 import { usePoints } from '@/composables/usePoints';
 import { usePush } from '@/composables/usePush';
 const route = useRoute();
@@ -117,7 +116,7 @@ const getActorList = () => {
 }
 const previewImageVisible = ref(false);
 const imageList = ref<any[]>([]);
-const handlePreviewImage = (currentItem: any) => {
+/* const handlePreviewImage = (currentItem: any) => {
     if (!currentItem.headimg && !currentItem.three_view_image) return;
     imageList.value = [currentItem.headimg, currentItem.three_view_image];
     if (currentItem.character_look_id) {
@@ -126,7 +125,7 @@ const handlePreviewImage = (currentItem: any) => {
     nextTick(() => {
         previewImageVisible.value = true;
     })
-}
+} */
 const taskList = ref<any[]>([]);
 const taskLoading = ref(false);
 const taskSearch = reactive({
@@ -201,6 +200,10 @@ const points = usePoints([model, threeViewModel]);
 const generateImageLoading = ref(false);
 const handleGenerateImage = () => {
     if (generateImageLoading.value || currentActor.value.status_enum.value === 'pending') return;
+    if(!currentActorForm.value.image_model_id&&!currentActorForm.value.three_view_model_id) {
+        ElMessage.error('请先选择形象图模型或三视图模型');
+        return;
+    }
     generateImageLoading.value = true;
     $http.post('/app/shortplay/api/Actor/initializing', {
         ...currentActorForm.value,
@@ -244,10 +247,9 @@ const handleReplaceActor = (item: any) => {
         task_id: item.id
     }).then((res: any) => {
         if (res.code === ResponseCode.SUCCESS) {
-            if (currentActor.value.character_look_id) {
+            currentActor.value.headimg = item.result.image_path;
+            if (!currentActor.value.character_look_id) {
                 currentActor.value.origin_headimg = item.result.image_path;
-            } else {
-                currentActor.value.headimg = item.result.image_path;
             }
             currentActor.value.status = res.data.status;
             currentActor.value.status_enum = res.data.status_enum;
@@ -420,15 +422,6 @@ onUnmounted(() => {
                             </template>
                         </el-input>
                     </el-form-item>
-                    <el-form-item class="mb-0">
-                        <el-input v-model="ActorSearch.actor_id" placeholder="演员ID" clearable @change="getActorList">
-                            <template #suffix>
-                                <el-icon>
-                                    <Search />
-                                </el-icon>
-                            </template>
-                        </el-input>
-                    </el-form-item>
                     <div class="flex-1"></div>
                     <el-form-item class="mb-0" style="width: 80px;">
                         <el-select v-model="ActorSearch.species_type" placeholder="物种" clearable :teleported="false"
@@ -463,48 +456,61 @@ onUnmounted(() => {
                             </el-icon>
                             <span>添加演员</span>
                         </div>
-                        <div class="grid-column-1 input-button rounded-4 flex flex-column flex-center grid-gap-2 actor-item bg-overlay"
-                            v-for="item in actorList" :key="item.id">
-                            <el-avatar :src="item.headimg" class="actor-avatar bg-mosaic"
-                                :class="{ 'pointer': item.headimg }" @click="handleCurrentActor(item)" fit="contain">
+                        <div class="grid-column-1 input-button rounded-4 flex flex-column flex-center grid-gap-2 actor-item bg-overlay border"
+                            :class="{ 'border-success': item.id === currentActorForm.id }" v-for="item in actorList"
+                            :key="item.id">
+                            <el-avatar :src="item.headimg" class="actor-avatar bg-mosaic" fit="cover" :title="item.is_edit?item.name:'公共角色不可编辑'">
                                 {{ item.name }}
                             </el-avatar>
+                            <div class="actor-edit-mask flex flex-column grid-gap-4 flex-center pointer"
+                                v-if="item.is_edit" @click="handleCurrentActor(item)">
+                                <div class="flex flex-center bg-overlay rounded-round p-2 pointer grid-gap-2"
+                                    @click.stop="actorCreateRef?.upload?.(item, ActorSearch.drama_id, ActorSearch.episode_id)">
+                                    <el-icon size="16">
+                                        <UploadFilled />
+                                    </el-icon>
+                                    <span class="h10">手动上传</span>
+                                </div>
+                                <el-popconfirm title="确定删除该演员吗？" width="fit-content" @confirm="handleDeleteActor(item)"
+                                    placement="bottom-end">
+                                    <template #reference>
+                                        <div class="flex flex-center bg-overlay rounded-round p-2 pointer grid-gap-2"
+                                            @click.stop>
+                                            <el-icon size="16">
+                                                <Delete />
+                                            </el-icon>
+                                            <span class="h10">删除演员</span>
+                                        </div>
+                                    </template>
+                                </el-popconfirm>
+                            </div>
                             <div class="flex grid-gap-2 actor-status">
-                                <span class="actor-tag pointer" title="复制演员"
+                                <!-- <span class="actor-tag pointer" title="复制演员"
                                     @click.stop="setClipboard(`@${item.name}(${item.actor_id}) `)">{{
                                         item.actor_id
-                                    }}</span>
+                                    }}</span> -->
                                 <div class="flex-1"></div>
                                 <div class="flex flex-column flex-y-flex-end grid-gap-2">
                                     <span class="actor-tag" :class="[`actor-tag--` + item.status_enum.props.type]">
                                         {{ item.status_enum.label }}
                                     </span>
-                                    <el-popconfirm title="确定删除该演员吗？" width="fit-content"
-                                        @confirm="handleDeleteActor(item)" placement="bottom-end">
-                                        <template #reference>
-                                            <div class="actor-tag p-2 actor-delete pointer">
-                                                <el-icon size="16">
-                                                    <Delete />
-                                                </el-icon>
-                                            </div>
-                                        </template>
-                                    </el-popconfirm>
                                 </div>
                             </div>
                             <div class="flex flex-column grid-gap-2 actor-info">
                                 <div class="actor-name flex flex-center grid-gap-1"
-                                    :class="{ 'pointer': item.is_edit, 'actor-name--success': item.id === currentActorForm.id }">
-                                    <el-icon>
+                                    :class="{ 'pointer': item.is_edit, 'actor-name--success': item.id === currentActorForm.id }"
+                                    @click.stop="actorCreateRef?.open?.(item, ActorSearch.drama_id, ActorSearch.episode_id)">
+                                    <el-icon size="16">
                                         <UserFilled />
                                     </el-icon>
                                     <span>{{ item.name }}</span>
                                 </div>
-                                <div class="flex grid-gap-2">
+                                <!-- <div class="flex grid-gap-2">
                                     <span class="actor-tag">{{ item.species_type_enum?.label
                                         }}</span>
                                     <span class="actor-tag">{{ item.gender_enum?.label }}</span>
                                     <span class="actor-tag">{{ item.age_enum?.label }}</span>
-                                </div>
+                                </div> -->
                             </div>
                             <div class="actor-action flex flex-center px-4">
                                 <el-button text bg @click="handleVoiceActor(item)" class="flex-1 text-ellipsis-1">
@@ -527,10 +533,6 @@ onUnmounted(() => {
                     <div class="border-bottom flex flex-center">
                         <el-input v-model="currentActorForm.name" placeholder="角色演员" size="large"
                             class="actor-form-input flex-1">
-                            <template #suffix>
-                                <el-button type="primary" bg text size="small"
-                                    @click="actorCreateRef?.open?.(currentActor, ActorSearch.drama_id, ActorSearch.episode_id)">编辑</el-button>
-                            </template>
                         </el-input>
                     </div>
                     <div class="flex flex-column grid-gap-2 px-4">
@@ -666,7 +668,7 @@ onUnmounted(() => {
                                 <el-avatar :src="item.result.image_path" fit="contain" shape="square" :size="206">
                                 </el-avatar>
                                 <div class="flex flex-center grid-gap-2 task-item-replace pointer"
-                                    v-if="item.result.image_path !== currentActor.image && item.result.image_path !== currentActor.origin_headimg"
+                                    v-if="item.result.image_path !== currentActor.headimg && item.result.image_path !== currentActor.origin_headimg"
                                     @click="handleReplaceActor(item)">
                                     <el-icon>
                                         <Loading class="circular" v-if="replaceActorLoading" />
@@ -772,6 +774,24 @@ onUnmounted(() => {
             height: 260px;
             width: 100%;
             border-radius: 0px;
+        }
+
+        .bg-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .actor-edit-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 260px;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+
+            &:hover {
+                opacity: 1;
+            }
         }
 
         .actor-status {

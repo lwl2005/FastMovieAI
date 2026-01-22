@@ -4,7 +4,6 @@ import { $http } from '@/common/http';
 import IconModelSvg from '@/svg/icon/icon-model.vue';
 import IconPointsSvg from '@/svg/icon/icon-points.vue';
 import IconReplaceSvg from '@/svg/icon/icon-replace.vue';
-import IconUploadImageSvg from '@/svg/icon/icon-upload-image.vue';
 import IconTransitionSvg from '@/svg/icon/icon-transition.vue';
 import IconStoryboardSvg from '@/svg/icon/icon-storyboard.vue';
 import IconDubbingSvg from '@/svg/icon/icon-dubbing.vue';
@@ -20,7 +19,8 @@ import { formatDuration, truncate } from '@/common/functions';
 import { useAVCanvas } from '@/composables/useAVCanvas';
 import { usePush } from '@/composables/usePush';
 import { ElLoadingService, ElMessageBox, ElMessageBoxOptions, TabPaneName } from 'element-plus';
-import { useCompsite } from '@/composables/useCompsite';
+import { COMPSITE_EVENTS, useCompsite } from '@/composables/useCompsite';
+import { useLoading } from '@/composables/useLoading';
 const route = useRoute();
 const userStore = useUserStore();
 const { USERINFO } = useRefs(userStore);
@@ -314,7 +314,7 @@ const submitBatchGenerateImage = () => {
     batchGenerateLoading.value = true;
     Promise.all(batchGenerateList.value.map((item: any) => {
         return $http.post('/app/shortplay/api/Generate/storyboardImage', {
-            id: item.id,
+            storyboard_id: item.id,
             drama_id: drama_id.value,
             model_id: model.value.id,
             prompt: item.image_prompt,
@@ -342,7 +342,7 @@ const submitBatchGenerateVideo = () => {
     batchGenerateVideoLoading.value = true;
     Promise.all(batchGenerateList.value.map((item: any) => {
         return $http.post('/app/shortplay/api/Generate/storyboardVideo', {
-            id: item.id,
+            storyboard_id: item.id,
             drama_id: drama_id.value,
             model_id: videoModel.value.id,
             prompt: item.video_prompt,
@@ -613,14 +613,7 @@ const handleUploadSuccess = (response: any) => {
                     image: response.data.url,
                 }).then((res: any) => {
                     if (res.code === ResponseCode.SUCCESS) {
-                        if (currentStoryboard.value.id === res.data.id) {
-                            currentStoryboard.value.image = response.data.url;
-                        } else {
-                            const find = storyboardList.value.find(i => i.id === res.data.id);
-                            if (find) {
-                                find.image = response.data.url;
-                            }
-                        }
+                        getStoryboardList();
                         ElMessage.success('保存成功');
                     } else {
                         ElMessage.error(res.msg);
@@ -636,14 +629,7 @@ const handleUploadSuccess = (response: any) => {
                     video: response.data.url,
                 }).then((res: any) => {
                     if (res.code === ResponseCode.SUCCESS) {
-                        if (currentStoryboard.value.id === res.data.id) {
-                            currentStoryboard.value.video = response.data.url;
-                        } else {
-                            const find = storyboardList.value.find(i => i.id === res.data.id);
-                            if (find) {
-                                find.video = response.data.url;
-                            }
-                        }
+                        getStoryboardList();
                         ElMessage.success('保存成功');
                     } else {
                         ElMessage.error(res.msg);
@@ -1245,11 +1231,127 @@ const handlePlayAudio = (audio: string) => {
     const audioElement = new Audio(audio);
     audioElement.play();
 }
+
+const xlLoading = useLoading({
+    title: '正在合成',
+    tips: '请勿退出页面，否则合成会中断',
+    list: [
+        {
+            title: '获取分镜中...'
+        },
+        {
+            title: '选择保存位置...'
+        },
+        {
+            title: '正在准备素材...'
+        },
+        {
+            title: '正在解析视频素材...'
+        },
+        {
+            title: '正在解析对话素材...'
+        },
+        {
+            title: '正在解析对话音频素材...'
+        },
+        {
+            title: '正在解析旁白素材...'
+        },
+        {
+            title: '正在解析旁白音频素材...'
+        },
+        {
+            title: '正在合成中...'
+        },
+        {
+            title: '正在上传视频...'
+        },
+    ],
+    showCancelButton: true,
+    cancelButtonText: '取消合成',
+    cancelButtonClick: () => {
+        video.cancel();
+        xlLoading.close();
+    }
+});
+const video = useCompsite({
+    drama_id: drama_id.value,
+    episode_id: episode_id.value,
+    output:drama_id.value + '_' + episode_id.value + '.mp4',
+});
+video.on(COMPSITE_EVENTS.SAVE_FILE, (state?: any) => {
+    if (state === true) {
+        xlLoading.xlLoadingRef.value?.setProgress(10);
+    } else if (state === false) {
+        xlLoading.close();
+    } else {
+        xlLoading.xlLoadingRef.value?.setCurrentIndex(1);
+    }
+})
+video.on(COMPSITE_EVENTS.PARSE_RESOURCE, (p: number) => {
+    xlLoading.xlLoadingRef.value?.setCurrentIndex(2);
+    const progress = 15 + (p * 15 / 100);
+    xlLoading.xlLoadingRef.value?.setProgress(progress);
+})
+video.on(COMPSITE_EVENTS.VIDEO, (p: number) => {
+    xlLoading.xlLoadingRef.value?.setCurrentIndex(3);
+    const progress = 30 + (p * 10 / 100);
+    xlLoading.xlLoadingRef.value?.setProgress(progress);
+})
+video.on(COMPSITE_EVENTS.DIALOGUES, (p: number) => {
+    xlLoading.xlLoadingRef.value?.setCurrentIndex(4);
+    const progress = 40 + (p * 5 / 100);
+    xlLoading.xlLoadingRef.value?.setProgress(progress);
+})
+video.on(COMPSITE_EVENTS.DIALOGUES_AUDIO, (p: number) => {
+    xlLoading.xlLoadingRef.value?.setCurrentIndex(5);
+    const progress = 45 + (p * 5 / 100);
+    xlLoading.xlLoadingRef.value?.setProgress(progress);
+})
+video.on(COMPSITE_EVENTS.NARRATIONS, (p: number) => {
+    xlLoading.xlLoadingRef.value?.setCurrentIndex(6);
+    const progress = 50 + (p * 5 / 100);
+    xlLoading.xlLoadingRef.value?.setProgress(progress);
+})
+video.on(COMPSITE_EVENTS.NARRATIONS_AUDIO, (p: number) => {
+    xlLoading.xlLoadingRef.value?.setCurrentIndex(7);
+    const progress = 50 + (p * 5 / 100);
+    xlLoading.xlLoadingRef.value?.setProgress(progress);
+})
+video.on(COMPSITE_EVENTS.PROGRESS, (p: number) => {
+    xlLoading.xlLoadingRef.value?.setCurrentIndex(8);
+    const progress = 55 + (p * 25 / 100);
+    xlLoading.xlLoadingRef.value?.setProgress(progress);
+})
+video.on(COMPSITE_EVENTS.UPLOAD_VIDEO, (p: number) => {
+    xlLoading.xlLoadingRef.value?.setCurrentIndex(9);
+    const progress = 80 + (p * 20 / 100);
+    xlLoading.xlLoadingRef.value?.setProgress(progress);
+})
+video.on(COMPSITE_EVENTS.COMPLETE, (state: boolean) => {
+    if (state === true) {
+        xlLoading.close();
+        ElMessage.success('合成成功');
+    } else {
+        xlLoading.close();
+        ElMessage.error('合成失败');
+    }
+})
 const compsite = async () => {
-    const res:any=await $http.get('/app/shortplay/api/Storyboard/index', { params: StoryboardSearch });
-    if(res.code===ResponseCode.SUCCESS){
-        const video = useCompsite(res.data);
-    }else{
+    const s = await xlLoading.open();
+    if (!s) {
+        return;
+    }
+    xlLoading.xlLoadingRef.value?.setCurrentIndex(0);
+    const res: any = await $http.get('/app/shortplay/api/Storyboard/index', { params: StoryboardSearch });
+    if (res.code === ResponseCode.SUCCESS) {
+        if (video.cancelRef.value) {
+            return;
+        }
+        xlLoading.xlLoadingRef.value?.setProgress(5);
+        video.synthesis(res.data);
+    } else {
+        xlLoading.close();
         ElMessage.error(res.msg);
     }
 }
@@ -1284,9 +1386,38 @@ defineExpose({
     <div class="flex flex-column draw-module">
         <div class="flex-1 flex grid-gap-10 overflow-hidden">
             <div class="flex-1 flex flex-column grid-gap-10 overflow-hidden">
-                <div class="flex grid-gap-2">
+                <div class="flex grid-gap-2 flex-center" style="height: 40px;">
                     <span>{{ currentStoryboard?.sceneFind?.title }}</span>
                     <span class="text-success">#{{ currentStoryboard?.sort }}</span>
+                    <div class="flex-1"></div>
+                    <template v-if="currentStoryboardForm.storyboard_id && activeName === 'image'">
+                        <el-upload ref="uploadImageRef" :data="{ dir_name: 'storyboard/image', dir_title: '分镜图' }"
+                            :action="$http.getCompleteUrl('app/shortplay/api/Uploads/upload')"
+                            :headers="$http.getHeaders()" accept="image/jpeg,image/png" :limit="1" type="cover"
+                            :disabled="currentStoryboardUploadLoading"
+                            :before-upload="() => { currentStoryboardUploadLoading = true; return true; }"
+                            :on-success="handleUploadSuccess" :show-file-list="false"
+                            :on-error="() => { currentStoryboardUploadLoading = false; handleUploadError() }">
+                            <el-button size="small" bg text icon="UploadFilled"
+                                :loading="currentStoryboardUploadLoading">
+                                <span>本地上传</span>
+                            </el-button>
+                        </el-upload>
+                    </template>
+                    <template v-if="currentStoryboardForm.storyboard_id && activeName === 'video'">
+                        <el-upload ref="uploadImageRef" :data="{ dir_name: 'storyboard/video', dir_title: '分镜视频' }"
+                            :action="$http.getCompleteUrl('app/shortplay/api/Uploads/upload')"
+                            :headers="$http.getHeaders()" accept="video/mp4,video/webm" :limit="1" type="cover"
+                            :disabled="currentStoryboardUploadLoading"
+                            :before-upload="() => { currentStoryboardUploadLoading = true; return true; }"
+                            :on-success="handleUploadSuccess" :show-file-list="false"
+                            :on-error="() => { currentStoryboardUploadLoading = false; handleUploadError() }">
+                            <el-button size="small" bg text icon="UploadFilled"
+                                :loading="currentStoryboardUploadLoading">
+                                <span>本地上传</span>
+                            </el-button>
+                        </el-upload>
+                    </template>
                 </div>
                 <div class="flex-1 flex overflow-hidden">
                     <div class="flex-1 preview-image overflow-hidden position-relative" ref="cvsWrapElWrapper">
@@ -1474,7 +1605,7 @@ defineExpose({
                                                     :size="16"></el-avatar>
                                                 <span class="h10 text-ellipsis-1" style="max-width: 60px;">{{
                                                     model.name
-                                                    }}</span>
+                                                }}</span>
                                                 <el-icon size="16" class="pointer" @click.stop="handleModelSelect()">
                                                     <Close />
                                                 </el-icon>
@@ -1486,22 +1617,6 @@ defineExpose({
                                             </template>
                                         </div>
                                         <div class="flex-1"></div>
-                                        <el-upload ref="uploadImageRef"
-                                            :data="{ dir_name: 'storyboard/image', dir_title: '分镜图' }"
-                                            :action="$http.getCompleteUrl('app/shortplay/api/Uploads/upload')"
-                                            :headers="$http.getHeaders()" accept="image/jpeg,image/png" :limit="1"
-                                            type="cover" :disabled="currentStoryboardUploadLoading"
-                                            :before-upload="() => { currentStoryboardUploadLoading = true; return true; }"
-                                            :on-success="handleUploadSuccess" :show-file-list="false"
-                                            :on-error="() => { currentStoryboardUploadLoading = false; handleUploadError() }">
-                                            <div
-                                                class="bg-overlay rounded-round p-3 flex flex-center grid-gap-2 pointer hover-bg-hover">
-                                                <el-icon size="16">
-                                                    <Loading class="circular" v-if="currentStoryboardUploadLoading" />
-                                                    <IconUploadImageSvg v-else />
-                                                </el-icon>
-                                            </div>
-                                        </el-upload>
                                         <div class="flex flex-center grid-gap-2">
                                             <el-icon size="16">
                                                 <IconPointsSvg />
@@ -1694,7 +1809,7 @@ defineExpose({
                                                     :size="16"></el-avatar>
                                                 <span class="h10 text-ellipsis-1" style="max-width: 60px;">{{
                                                     videoModel.name
-                                                    }}</span>
+                                                }}</span>
                                                 <el-icon size="16" class="pointer"
                                                     @click.stop="handleVideoModelSelect()">
                                                     <Close />
@@ -1715,22 +1830,6 @@ defineExpose({
                                                 Math.floor(currentStoryboardForm.duration / 1000) }}s</span>
                                         </div>
                                         <div class="flex-1"></div>
-                                        <el-upload ref="uploadImageRef"
-                                            :data="{ dir_name: 'storyboard/video', dir_title: '分镜视频' }"
-                                            :action="$http.getCompleteUrl('app/shortplay/api/Uploads/upload')"
-                                            :headers="$http.getHeaders()" accept="video/mp4,video/webm" :limit="1"
-                                            type="cover" :disabled="currentStoryboardUploadLoading"
-                                            :before-upload="() => { currentStoryboardUploadLoading = true; return true; }"
-                                            :on-success="handleUploadSuccess" :show-file-list="false"
-                                            :on-error="() => { currentStoryboardUploadLoading = false; handleUploadError() }">
-                                            <div
-                                                class="bg-overlay rounded-round p-3 flex flex-center grid-gap-2 pointer hover-bg-hover">
-                                                <el-icon size="16">
-                                                    <Loading class="circular" v-if="currentStoryboardUploadLoading" />
-                                                    <IconUploadImageSvg v-else />
-                                                </el-icon>
-                                            </div>
-                                        </el-upload>
                                         <div class="flex flex-center grid-gap-2">
                                             <el-icon size="16">
                                                 <IconPointsSvg />
@@ -1800,7 +1899,7 @@ defineExpose({
                             class="storyboard-form flex flex-column grid-gap-4 p-4">
                             <div class="flex flex-column grid-gap-2" v-if="dialogues?.length > 0">
                                 <div class="flex flex-center grid-gap-4 text-info pointer"
-                                    v-for="(dialogue, dialogueIndex) in dialogues" :key="dialogue.id"
+                                    v-for="dialogue in dialogues" :key="dialogue.id"
                                     @click="handleCurrentDialogue(dialogue)">
                                     <el-icon size="16"
                                         :color="currentDialogue?.id === dialogue.id ? 'var(--el-color-success)' : 'var(--el-color-info)'">
@@ -1876,7 +1975,7 @@ defineExpose({
                                                                 <span>情绪：</span>
                                                                 <span class="flex-1 text-info">{{
                                                                     currentDialogue.voice.selected_emotion?.label
-                                                                    }}</span>
+                                                                }}</span>
                                                                 <el-icon>
                                                                     <ArrowDown />
                                                                 </el-icon>
@@ -1901,7 +2000,7 @@ defineExpose({
                                                                 <span>语言：</span>
                                                                 <span class="flex-1 text-info">{{
                                                                     currentDialogue.voice.selected_language?.label
-                                                                    }}</span>
+                                                                }}</span>
                                                                 <el-icon>
                                                                     <ArrowDown />
                                                                 </el-icon>
@@ -2218,6 +2317,8 @@ defineExpose({
 
     .preview-image {
         flex: 1;
+        max-width: 1440px;
+        margin: 0 auto;
         height: 100%;
         --el-avatar-bg-color: var(--el-bg-color);
 
@@ -2643,7 +2744,7 @@ defineExpose({
             right: -17px;
             width: 30px;
             height: 30px;
-            z-index: 3000;
+            z-index: 1000;
             background-color: var(--el-color-success);
             color: var(--el-bg-color);
             border-radius: 4px;

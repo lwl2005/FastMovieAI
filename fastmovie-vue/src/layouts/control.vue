@@ -11,9 +11,10 @@ import NoticeSvg from '@/svg/tabs/notice.vue'
 import NoticeActiveSvg from '@/svg/tabs/notice-active.vue'
 import router from '@/routers'
 import { RouteLocationNormalized } from 'vue-router'
-import { useStateStore, useRefs, useUserStore } from '@/stores'
+import { useStateStore, useRefs, useUserStore ,useWebConfigStore} from '@/stores'
 import { useLogin } from '@/composables/useLogin'
 import XlNotice from '@/components/xl-notice/index.vue'
+import { Close } from '@element-plus/icons-vue'
 const iconMap: Record<string, any> = {
     ...ElementPlusIconsVue,
     HomeSvg,
@@ -60,6 +61,7 @@ const menus = ref([
         activeIcon: 'UserActiveSvg'
     }
 ])
+const { WEBCONFIG } = useRefs(useWebConfigStore())
 // 根据当前路由获取对应的菜单标识
 const getCurrentMenu = (route: RouteLocationNormalized): string => {
     // 优先使用路由 meta 中的 menu 字段
@@ -80,18 +82,39 @@ const { STATE } = useRefs(stateStore)
 const userStore = useUserStore()
 const login = useLogin()
 const noticePopoverVisible = ref(false)
-const noticeButtonRef = ref<HTMLElement | null>(null)
+const noticeRef = ref<any>(null)
 
-// 设置通知按钮 ref 的函数
-const setNoticeButtonRef = (el: Element | ComponentPublicInstance | null) => {
-    if (el && el instanceof HTMLElement) {
-        noticeButtonRef.value = el
-    }
-}
 
 // 不需要登录验证的菜单路径
 const noLoginMenus = ['/']
-const noticeRef =ref(null)
+
+// 获取视频格式
+const getVideoType = (url: string): string => {
+    if (!url) return ''
+    const extension = url.split('.').pop()?.toLowerCase()
+    switch (extension) {
+        case 'webm':
+            return 'video/webm'
+        case 'mp4':
+        case 'mov':
+            return 'video/mp4'
+        case 'ogg':
+            return 'video/ogg'
+        default:
+            return 'video/mp4'
+    }
+}
+
+// 动态获取背景视频地址
+const backgroundVideoUrl = computed(() => {
+    return WEBCONFIG.value?.project_background_video_url || '/static/image/bg.mov'
+})
+
+// 获取视频类型
+const videoType = computed(() => {
+    return getVideoType(backgroundVideoUrl.value)
+})
+
 // 处理菜单点击
 const handleMenuClick = (menu: any, event: MouseEvent) => {
     // 如果是通知菜单，打开弹窗
@@ -110,10 +133,23 @@ const handleMenuClick = (menu: any, event: MouseEvent) => {
     event.preventDefault()
     login.open()
 }
-
+const videoRef = ref<HTMLVideoElement | null>(null)
+onMounted(() => {
+    requestIdleCallback(() => {
+        const video = videoRef.value
+        if (video) {
+            video.play()
+        }
+    })
+})
 </script>
 <template>
     <div class="control-layouts" :class="{ 'bg ': $route.path === '/' }">
+        <!-- 背景视频 -->
+        <video ref="videoRef" v-show="$route.path === '/' && backgroundVideoUrl" preload="metadata"
+            class="control-layouts-bg-video" autoplay loop muted playsinline poster="/static/image/bg.jpg">
+            <source :src="backgroundVideoUrl" :type="videoType">
+        </video>
         <transition name="blur-fade">
             <div class="control-layouts-header-bg" v-if="$route.path === '/' && STATE.InputFocusState"></div>
         </transition>
@@ -132,15 +168,11 @@ const handleMenuClick = (menu: any, event: MouseEvent) => {
                     :class="{ 'control-layouts-menu-list-item-selected': currentMenu === menu.menu }">
                     <template v-if="menu.type === 'router' && menu.path">
                         <el-tooltip class="box-item" effect="dark" :content="menu.name" placement="right">
-                            <div 
-                                class="control-layouts-menu-list-item-link" 
-                                :ref="menu.menu === 'notice' ? setNoticeButtonRef : undefined"
-                                @click="handleMenuClick(menu, $event)">
+                            <div class="control-layouts-menu-list-item-link" @click="handleMenuClick(menu, $event)">
                                 <el-icon size="26">
                                     <component
                                         :is="currentMenu === menu.menu ? iconMap[menu.activeIcon] : iconMap[menu.icon]" />
                                 </el-icon>
-                                <!-- <span>{{ menu.name }}</span> -->
                             </div>
                         </el-tooltip>
                     </template>
@@ -159,17 +191,21 @@ const handleMenuClick = (menu: any, event: MouseEvent) => {
             </ul>
         </div>
         <router-view />
-        <el-popover
-            :virtual-ref="noticeButtonRef"
-            virtual-triggering
-            placement="right-end"
-            width="430px"
-            trigger="click"
-            title="消息中心"
-            popper-style="min-height: 70vh;"
-            popper-class="notice-popover">
-            <XlNotice ref="noticeRef" />
+        <el-popover :visible="noticePopoverVisible" width="430px" placement="right-end" :show-arrow="false"
+            trigger="click" title="消息中心" popper-style="height:90dvh;margin-top:10dvh;inset:auto auto 5dvh 88px;">
+            <div class="position-relative">
+                <XlNotice ref="noticeRef" />
+                <div class="position-absolute top--10 right-4 pointer z-10">
+                    <el-icon :size="20" @click="noticePopoverVisible = false">
+                        <Close />
+                    </el-icon>
+                </div>
+            </div>
+            <template #reference>
+                <div></div>
+            </template>
         </el-popover>
+
     </div>
 </template>
 <style scoped lang="scss">
@@ -178,12 +214,18 @@ const handleMenuClick = (menu: any, event: MouseEvent) => {
     --xl-menu-width: 94px;
     padding: var(--xl-header-height) 0 0 var(--xl-menu-width);
     transition: padding 0.3s ease-in-out;
+    position: relative;
 
-    &.bg {
-        background-image: url('/static/image/bg.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
+    &-bg-video {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        z-index: 0;
+        pointer-events: none;
     }
 
     &-header {
@@ -297,6 +339,7 @@ const handleMenuClick = (menu: any, event: MouseEvent) => {
     height: 100%;
     backdrop-filter: blur(8px);
     z-index: 1;
+    pointer-events: none;
 }
 
 .blur-fade-enter-active,
@@ -315,18 +358,15 @@ const handleMenuClick = (menu: any, event: MouseEvent) => {
     opacity: 1;
     backdrop-filter: blur(8px);
 }
-
-
 </style>
 <style>
-    
-.el-popover{
+.el-popover {
     --el-popover-bg-color: rgba(30, 30, 30, 0.4);
-    --el-popover-border-color: rgba(3255,255,255,0.3);
-    --el-box-shadow-light:none;
-    --el-popover-border-radius:20px;
-    --el-popover-padding:20px;
+    --el-popover-border-color: rgba(3255, 255, 255, 0.3);
+    --el-box-shadow-light: none;
+    --el-popover-border-radius: 20px;
+    --el-popover-padding: 20px;
     backdrop-filter: blur(8px);
+    overflow: hidden;
 }
-
 </style>

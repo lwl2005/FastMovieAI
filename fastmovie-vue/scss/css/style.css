@@ -340,6 +340,41 @@ a {
   display: none;
 }
 
+.x-loading-message-box-modal .el-overlay-message-box {
+  padding: 0px !important;
+}
+
+.x-loading-message-box {
+  --el-messagebox-width: 100vw;
+  --el-messagebox-height: 100vh;
+  --el-messagebox-padding-primary: 0px;
+  --el-messagebox-border-radius: 0px;
+  height: var(--el-messagebox-height);
+}
+
+.x-loading-message-box .el-message-box__message {
+  height: var(--el-messagebox-height);
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  gap: 10px;
+}
+
+.x-loading-message-box .el-message-box__btns {
+  display: none;
+}
+
 .text-active {
   color: transparent;
   background-clip: text;
@@ -352,6 +387,11 @@ a {
 .bg-active {
   background-image: -webkit-gradient(linear, right top, left top, from(#79FFFF), to(#0DF283));
   background-image: linear-gradient(to left, #79FFFF 0%, #0DF283 100%);
+}
+
+.el-overlay.el-modal-dialog {
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
 }
 
 .el-dialog.drama-dialog {
@@ -490,7 +530,10 @@ a {
 
 .tabs-segmented.el-segmented {
   --el-border-radius-base: 8px;
-  --el-segmented-bg-color: var(--el-bg-color-overlay);
+  --el-segmented-bg-color:rgba(30, 30, 30, 0.4);
+  --el-border-color:rgba(255, 255, 255, 0.3);
+  --el-segmented-item-hover-bg-color:rgba(255, 255, 255, 0.1);
+  --el-segmented-item-active-bg-color:rgba(255, 255, 255, 0.1);
   --el-segmented-padding: 4px;
   --el-segmented-item-selected-color: var(--el-bg-color);
   --el-segmented-item-selected-bg-color: #FFFFFF;
@@ -505,11 +548,6 @@ a {
 
 .tabs-segmented.el-segmented .el-segmented__group {
   gap: 10px;
-}
-
-.tabs-segmented.el-segmented .el-segmented__item-selected {
-  /* background-image: -webkit-gradient(linear, right top, left top, from(#79FFFF), to(#0DF283));
-  background-image: linear-gradient(to left, #79FFFF 0%, #0DF283 100%); */
 }
 
 .prompt-popper .el-mention-dropdown {

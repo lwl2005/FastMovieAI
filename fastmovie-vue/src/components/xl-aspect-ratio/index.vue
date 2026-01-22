@@ -12,13 +12,13 @@ const showArrowDown = ref(false);
 const aspectRatioList = ref<string[]>(['9:16', '16:9', '3:4', '4:3', '2:3', '3:2', '1:1']);
 </script>
 <template>
-    <el-popover placement="bottom-start" width="fit-content" popper-class="model-popover" @show="showArrowDown = false"
+    <el-popover :show-arrow="false" trigger="click" placement="bottom-start" width="fit-content" popper-class="model-popover" @show="showArrowDown = false"
         @hide="showArrowDown = true">
         <template #reference>
             <slot>
                 <div class="flex flex-center grid-gap-2 input-button input-button-selected   px-6">
-                    <span class="icon-aspect-ratio" :view="modelValue"></span>
-                    <span class="h10">{{ modelValue }}</span>
+                    <span class="icon-aspect-ratio" :view="props.modelValue"></span>
+                    <span class="h10">{{ props.modelValue }}</span>
                     <el-icon v-if="showArrowDown">
                         <ArrowUpBold />
                     </el-icon>
@@ -32,10 +32,10 @@ const aspectRatioList = ref<string[]>(['9:16', '16:9', '3:4', '4:3', '2:3', '3:2
         <el-scrollbar height="300px">
             <div class="grid-columns-2 grid-gap-4 text-center mt-4">
                 <div v-for="item in aspectRatioList" :key="item"
-                    class="grid-column-2 grid-gap-2 input-button rounded-4 p-2" :class="{ 'input-button-selected': modelValue === item }" @click.stop="handleSelect(item)">
+                    class="grid-column-2 grid-gap-2 input-button rounded-4 p-2" :class="{ 'input-button-selected': props.modelValue === item }" @click.stop="handleSelect(item)">
                     <span class="icon-aspect-ratio" :view="item"></span>
                     <span class="font-weight-600">{{ item }}</span>
-                    <el-icon v-if="modelValue === item" class="ml-auto">
+                    <el-icon v-if="props.modelValue === item" class="ml-auto">
                         <Check />
                     </el-icon>
                 </div>

@@ -231,7 +231,7 @@ onUnmounted(() => {
                         <span class="font-weight-600 p-4">#分镜</span>
                         <div class="flex-1"></div>
                         <div class="flex flex-center grid-gap-2">
-                            <el-button type="danger" size="small" @click="handleClearStoryboard()"
+                            <el-button type="danger" bg text size="small" @click="handleClearStoryboard()"
                                 v-if="storyboardList.length > 0">一键清空分镜</el-button>
                             <el-button type="success" icon="Plus" size="small" bg text v-if="sceneList.length > 0"
                                 @click="storyboardRef?.openCreateStoryboard?.()">新增</el-button>
@@ -244,11 +244,11 @@ onUnmounted(() => {
             </el-splitter>
         </div>
         <div class="p-4 w-100 flex grid-gap-4 flex-center">
-            <el-button type="success" size="large" @click="sceneRef?.openGenerateSceneDialog?.()" :loading="episodeInfo.init_scene_state"
+            <el-button type="success" size="large" @click="sceneRef?.openGenerateSceneDialog?.()" :loading="!!episodeInfo.init_scene_state"
                 v-if="sceneList.length <= 0" :icon="IconBatchSvg">
                 <span>初始化场景</span>
             </el-button>
-            <el-button type="success" size="large" @click="storyboardRef?.openGenerateStoryboard?.()" :loading="episodeInfo.init_storyboard_state"
+            <el-button type="success" size="large" @click="storyboardRef?.openGenerateStoryboard?.()" :loading="!!episodeInfo.init_storyboard_state"
                 :disabled="storyboardList.length <= 0" :icon="IconBatchSvg">
                 <span>批量生成分镜</span>
             </el-button>

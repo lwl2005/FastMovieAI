@@ -53,15 +53,6 @@ const router = createRouter({
                     }
                 },
                 {
-                    path: '/works',
-                    name: 'works',
-                    component: () => import("@/pages/works/index.vue"),
-                    meta: {
-                        title: '资产库',
-                        menu: 'works',
-                    }
-                },
-                {
                     path: '/user',
                     name: 'user',
                     component: () => import("@/pages/user/index.vue"),
@@ -87,12 +78,27 @@ const router = createRouter({
                         title: '短剧详情',
                         menu: 'works',
                     },
-                    beforeEnter: (to, from, next) => {
+                    beforeEnter: (to, _from, next) => {
                         const userStore = useUserStore();
                         if (to.params.drama_id && userStore.hasLogin()) {
                             next()
                         } else {
                             next({ name: 'works' })
+                        }
+                    },
+                },
+                {
+                    path: '/play/:drama_id/:episode_id',
+                    name: 'play-detail',
+                    component: () => import("@/pages/play/index.vue"),
+                    meta: {
+                        title: '短剧播放',
+                    },
+                    beforeEnter: (to, _from, next) => {
+                        if (to.params.drama_id && to.params.episode_id) {
+                            next()
+                        } else {
+                            next({ name: 'index' })
                         }
                     },
                 }
@@ -152,7 +158,7 @@ const router = createRouter({
                     meta: {
                         title: '剧本调整',
                     },
-                    beforeEnter: (to, from, next) => {
+                    beforeEnter: (to, _from, next) => {
                         const userStore = useUserStore();
                         if (!to.params.drama_id || !to.params.episode_id || !userStore.hasLogin()) {
                             next({ name: 'index' })
@@ -168,7 +174,7 @@ const router = createRouter({
                     meta: {
                         title: '剧本调整',
                     },
-                    beforeEnter: (to, from, next) => {
+                    beforeEnter: (to, _from, next) => {
                         const userStore = useUserStore();
                         if (!to.params.drama_id || !to.params.episode_id || !userStore.hasLogin()) {
                             next({ name: 'index' })
@@ -184,7 +190,7 @@ const router = createRouter({
                     meta: {
                         title: '剧本调整',
                     },
-                    beforeEnter: (to, from, next) => {
+                    beforeEnter: (to, _from, next) => {
                         const userStore = useUserStore();
                         if (!to.params.drama_id || !to.params.episode_id || !userStore.hasLogin()) {
                             next({ name: 'index' })
@@ -200,7 +206,7 @@ const router = createRouter({
                     meta: {
                         title: '剧本调整',
                     },
-                    beforeEnter: (to, from, next) => {
+                    beforeEnter: (to, _from, next) => {
                         const userStore = useUserStore();
                         if (!to.params.drama_id || !to.params.episode_id || !userStore.hasLogin()) {
                             next({ name: 'index' })
@@ -216,7 +222,7 @@ const router = createRouter({
                     meta: {
                         title: '剧本调整',
                     },
-                    beforeEnter: (to, from, next) => {
+                    beforeEnter: (to, _from, next) => {
                         const userStore = useUserStore();
                         if (!to.params.drama_id || !to.params.episode_id || !userStore.hasLogin()) {
                             next({ name: 'index' })

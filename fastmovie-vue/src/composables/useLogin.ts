@@ -16,7 +16,7 @@ export const useLogin = () => {
                 onSuccess: (e: any) => {
                     // @ts-ignore
                     options.onVanish?.()
-                    if (e.activation_time == null || e.activation_time == '') {
+                    if (e.data.activation_time == null || e.data.activation_time == '') {
                         // 打开邀请码
                         openIcode()
                     }

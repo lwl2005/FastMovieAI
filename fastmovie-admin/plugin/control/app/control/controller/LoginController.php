@@ -128,6 +128,7 @@ class LoginController extends Basic
             if ($request->icode) {
                 $params['puid'] = HelperUser::getUidByIcode($request->icode);
             }
+            
             $res = Wechat::createQrCode(Wechat::QR_STR_SCENE, $expire, [\plugin\control\event\WechatOfficialAccount::class, 'login', $params]);
         } catch (\Throwable $th) {
             return $this->exception($th);

@@ -83,4 +83,9 @@ declare global {
         narration_audio: string[];
         sfx_audio: string[];
     }
+    interface TimeTask {
+        nextTime: number;     // 下一次触发时间（绝对时间）
+        cancelled: boolean;
+        run(now: number): void;
+    }
 }

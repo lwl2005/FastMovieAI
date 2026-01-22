@@ -3,7 +3,7 @@ import { ResponseCode } from '@/common/const';
 import { $http } from '@/common/http';
 import { useI18n } from 'vue-i18n';
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const props = withDefaults(defineProps<{
     qrcode?: any,
     url?: string,

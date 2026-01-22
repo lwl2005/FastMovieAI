@@ -1,3 +1,4 @@
+import { onWindowResize } from "@/common/functions";
 
 export const useAVCanvas = (cvsWrapEl: Ref<HTMLCanvasElement>, cvsWrapElWrapper: Ref<HTMLDivElement>) => {
     let offscreen: OffscreenCanvas | undefined;
@@ -146,6 +147,16 @@ export const useAVCanvas = (cvsWrapEl: Ref<HTMLCanvasElement>, cvsWrapElWrapper:
             }, [offscreen]);
         }
     }
+    const resize = () => {
+        worker.postMessage({
+            type: 'resize',
+            size: {
+                width: cvsWrapElWrapper.value.clientWidth,
+                height: cvsWrapElWrapper.value.clientHeight,
+            },
+        });
+    }
+    onWindowResize(resize, 300);
     const play = (currentStoryboard?: any) => {
         if (currentStoryboard) {
             const find = TrackResource.findIndex((item: TrackResourceInterface) => item.id === currentStoryboard.id);

@@ -5,6 +5,7 @@ namespace plugin\control\expose\helper;
 use app\expose\helper\Config;
 use GuzzleHttp\Client;
 use support\Redis;
+use support\Request;
 
 class Wechat
 {
@@ -32,10 +33,10 @@ class Wechat
      * @var string
      */
     const QR_LIMIT_STR_SCENE = 'QR_LIMIT_STR_SCENE';
-    public static function getAccessToken()
+    public static function getAccessToken(Request $request)
     {
         $config = new Config('wechat_official_account', 'control');
-        $access_token = Redis::get('wechat_official_account_access_token');
+        $access_token = Redis::get('wechat_official_account_access_token_' . $request->channels_uid);
         if ($access_token) {
             return $access_token;
         }
@@ -50,7 +51,7 @@ class Wechat
             if (isset($data['errcode'])) {
                 throw new \Exception($data['errmsg']);
             }
-            Redis::set('wechat_official_account_access_token', $data['access_token'], 'EX', $data['expires_in']);
+            Redis::set('wechat_official_account_access_token_' . $request->channels_uid, $data['access_token'], 'EX', $data['expires_in']);
             return $data['access_token'];
         } catch (\Throwable $th) {
             throw $th;
@@ -78,7 +79,7 @@ class Wechat
         if (count($eventData) < 2) {
             throw new \Exception('回调事件数据不完整');
         }
-        $access_token = self::getAccessToken();
+        $access_token = self::getAccessToken($request);
         $url = 'https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=' . $access_token;
         $client = new Client();
         $data = [
@@ -112,7 +113,8 @@ class Wechat
      */
     public static function sendTemplate($params)
     {
-        $access_token = self::getAccessToken();
+        $request = request();
+        $access_token = self::getAccessToken($request);
         $url = 'https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=' . $access_token;
         $client = new Client([
             'content_type' => 'application/json',

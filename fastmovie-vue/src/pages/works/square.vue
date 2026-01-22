@@ -3,19 +3,21 @@
         <el-scrollbar height="100%" wrap-class="flex-1" @end-reached="scrollBarEndReached" v-if="columns.length > 0">
             <div ref="containerRef" class="waterfall">
                 <div class="column" v-for="(col, colIndex) in columns" :key="colIndex">
-                    <div class="item" v-for="item in col.list" :key="item.id">
-                        <img :src="item.src" />
+                    <div class="item" v-for="item in col.list" :key="item.id" @click="handleItemClick(item)">
+                        <img :src="item.drama.cover" />
+                        <span class="h10 font-weight-600 episode_num">共 {{ item.episode_num }} 集</span>
                         <div
                             class="flex p-4 flex-y-center grid-gap-2 flex-x-space-between position-absolute bottom-0 left-0 right-0">
                             <div class="flex flex-y-center grid-gap-2">
-                                <el-avatar src="item.avatar" alt="1" :size="24" />
-                                <span class="h9">11</span>
+                                <el-avatar :src="item.user.headimg" :alt="item.user.nickname" :size="24" />
+                                <span class="h9">{{ item.user.nickname }}</span>
                             </div>
-                            <div class="flex flex-y-center grid-gap-2">
+                            <div class="flex flex-y-center grid-gap-2 pointer"
+                                :class="[item.is_likes ? 'text-danger' : 'text-info']" @click.stop="handleLike(item)">
                                 <el-icon :size="16">
                                     <IconLike />
                                 </el-icon>
-                                <span class="h9">11</span>
+                                <span class="h9">{{ item.likes }}</span>
                             </div>
                         </div>
                     </div>
@@ -27,115 +29,158 @@
         </div>
     </div>
 </template>
-
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import IconLike from '@/svg/icon/icon-like.vue'
+import { $http } from '@/common/http'
+import { ResponseCode } from '@/common/const'
+import router from '@/routers'
+import { useUserStore } from '@/stores'
 
-
-interface WaterfallItem {
-    id: string
-    src: string
-    height: number
-}
-
-interface WaterfallColumn {
-    height: number
-    list: WaterfallItem[]
-}
-
+/* ================== 常量 ================== */
 const COLUMN_COUNT = 4
 const GAP = 16
 
+/* ================== 类型 ================== */
+interface Column {
+    height: number
+    list: any[]
+}
+
+/* ================== 状态 ================== */
 const containerRef = ref<HTMLDivElement | null>(null)
 
-const columns = ref<WaterfallColumn[]>(
+const columns = ref<Column[]>(
     Array.from({ length: COLUMN_COUNT }, () => ({
         height: 0,
         list: [],
     }))
 )
 
+const searchForm = reactive({
+    page: 1,
+    page_size: 10,
+})
 
-/**
- * 加载图片并计算渲染高度
- */
-function loadImage(
-    src: string,
-    colWidth: number
-): Promise<Pick<WaterfallItem, 'src' | 'height'>> {
-    return new Promise((resolve) => {
+const loading = ref(false)
+const finished = ref(false)
+
+/* ================== 工具函数 ================== */
+function loadImage(src: string, colWidth: number): Promise<number> {
+    return new Promise((resolve, reject) => {
         const img = new Image()
-        img.src = src
         img.onload = () => {
-            const height = img.height * (colWidth / img.width)
-            resolve({ src, height })
+            resolve((img.height * colWidth) / img.width)
         }
+        img.onerror = reject
+        img.src = src
     })
 }
 
-/**
- * 获取当前最短列
- */
-function getMinColumn(): WaterfallColumn {
-    return columns.value.reduce((a, b) =>
-        a.height <= b.height ? a : b
-    )
+function getMinColumnIndex(): number {
+    let minIndex = 0
+    let minHeight = columns.value[0].height
+
+    for (let i = 1; i < columns.value.length; i++) {
+        if (columns.value[i].height < minHeight) {
+            minHeight = columns.value[i].height
+            minIndex = i
+        }
+    }
+    return minIndex
 }
 
-/**
- * 添加 item 到瀑布流
- */
-function appendItem(item: WaterfallItem): void {
-    const minCol = getMinColumn()
-    minCol.list.push(item)
-    minCol.height += item.height + GAP
+function appendItem(item: any) {
+    const index = getMinColumnIndex()
+    const col = columns.value[index]
+
+    col.list.push(item)
+    col.height += item.height + GAP
 }
 
-async function init(images: string[]): Promise<void> {
-    await nextTick()
-
-    if (!containerRef.value) return
+/* ================== 数据初始化 ================== */
+async function init(data: any[]) {
+    if (!containerRef.value || !data.length) return
 
     const containerWidth = containerRef.value.clientWidth
     const colWidth =
         (containerWidth - GAP * (COLUMN_COUNT - 1)) / COLUMN_COUNT
 
-    for (let i = 0; i < images.length; i++) {
-        const imgData = await loadImage(images[i], colWidth)
-        appendItem({
-            id: `${Date.now()}-${i}`,
-            src: imgData.src,
-            height: imgData.height,
+    const tasks = data
+        .filter(item => item?.drama?.cover)
+        .map(async item => {
+            try {
+                const height = await loadImage(item.drama.cover, colWidth)
+                return { ...item, height } as any
+            } catch {
+                return null
+            }
         })
+
+    const results = await Promise.allSettled(tasks)
+
+    results.forEach(res => {
+        if (res.status === 'fulfilled' && res.value) {
+            appendItem(res.value)
+        }
+    })
+}
+
+/* ================== 请求 ================== */
+async function getList() {
+    if (loading.value || finished.value) return
+
+    loading.value = true
+    try {
+        const res: any = await $http.get(
+            '/app/shortplay/api/Square/index',
+            { params: searchForm }
+        )
+
+        const list = res?.data?.data || []
+
+        if (res.code === ResponseCode.SUCCESS && list.length) {
+            await init(list)
+        } else {
+            finished.value = true
+        }
+    } catch (e) {
+        console.error('获取列表失败:', e)
+    } finally {
+        loading.value = false
     }
 }
 
-const scrollBarEndReached = () => {
-    console.log('scrollBarEndReached')
-    init(demoImages)
+function scrollBarEndReached() {
+    if (finished.value) return
+    searchForm.page++
+    getList()
 }
-const demoImages: string[] = [
-    'https://img0.baidu.com/it/u=3591665277,2616537962&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1333',
-    'https://img1.baidu.com/it/u=2456334644,3378803144&fm=253&fmt=auto&app=120&f=JPEG?w=800&h=1422',
-    'https://img0.baidu.com/it/u=3446103776,1318769391&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667',
-    'https://img0.baidu.com/it/u=3591665277,2616537962&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1333',
-    'https://img1.baidu.com/it/u=2456334644,3378803144&fm=253&fmt=auto&app=120&f=JPEG?w=800&h=1422',
-    'https://img0.baidu.com/it/u=3446103776,1318769391&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667',
-    'https://img0.baidu.com/it/u=3591665277,2616537962&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1333',
-    'https://img1.baidu.com/it/u=2456334644,3378803144&fm=253&fmt=auto&app=120&f=JPEG?w=800&h=1422',
-    'https://img0.baidu.com/it/u=3446103776,1318769391&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667',
-    'https://img0.baidu.com/it/u=3591665277,2616537962&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1333',
-    'https://img1.baidu.com/it/u=2456334644,3378803144&fm=253&fmt=auto&app=120&f=JPEG?w=800&h=1422',
-    'https://img0.baidu.com/it/u=3446103776,1318769391&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667',
-]
 
-onMounted(() => {
-    init(demoImages)
-})
+function handleItemClick(item: any) {
+    router.push(`/play/${item.drama_id}/${item.episode.episode_id}`)
+}
+const userStore = useUserStore();
+const handleLike = (item: any) => {
+    if (!userStore.hasLogin()) return;
+    $http.post('/app/shortplay/api/Square/likes', {
+        drama_id: item.drama_id,
+        episode_id: item.episode_id
+    }).then((res: any) => {
+        if (res.code === ResponseCode.SUCCESS) {
+            item.is_likes = !item.is_likes;
+            item.likes = res.data.likes;
+        } else {
+            ElMessage.error(res.msg);
+        }
+    }).catch(() => {
+        ElMessage.error('点赞失败');
+    })
+}
+onMounted(getList)
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .container {
     width: 100%;
     height: calc(100dvh - var(--xl-header-height));
@@ -158,13 +203,30 @@ onMounted(() => {
 .item {
     margin-bottom: 1px;
     position: relative;
+    background-color: var(--el-bg-color-page);
+    overflow: hidden;
+    cursor: pointer;
+
+    .episode_num {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: #FFFFFF;
+        background-color: rgba(0, 0, 0, 0.15);
+        padding: 4px 8px;
+        border-radius: 4px;
+        backdrop-filter: blur(10px);
+    }
 }
 
 .item img {
     width: 100%;
     display: block;
     border-radius: 8px;
+    transition: transform 0.3s ease;
+
+    &:hover {
+        transform: scale(1.05);
+    }
 }
-
-
 </style>

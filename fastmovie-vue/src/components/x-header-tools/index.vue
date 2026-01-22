@@ -10,6 +10,7 @@ import router from '@/routers';
 import { throttle } from '@/common/functions';
 import { $http } from '@/common/http';
 import { ResponseCode } from '@/common/const';
+import IconVipSvg from '@/svg/icon/icon-vip.vue';
 const props = withDefaults(defineProps<{
     showMenu?: any[]
 }>(), {
@@ -39,7 +40,7 @@ const addListener = () => {
         subscribe('private-notify-' + USERINFO.value?.user, (res: any) => {
             notify.parse(res);
         });
-        subscribe('private-user-' + USERINFO.value?.user, (res: any) => {
+        subscribe('private-user-' + USERINFO.value?.user, () => {
             getUserInfo();
         });
     }
@@ -94,24 +95,18 @@ onUnmounted(() => {
             <el-divider direction="vertical" />
             <span class="h10" @click.stop="$router.push('/points')">充值</span>
         </div>
-        <xl-user-vip v-if="showMenu?.includes('vip')" />
-        <!-- <div class="x-header-tool" v-if="USERINFO && showMenu?.includes('vip')">
-            <el-icon :size="26">
-                <IconVipSvg />
-            </el-icon>
-        </div> -->
-        <!-- <div class="x-header-tool" v-if="showMenu?.includes('language')">
-            <el-icon alt="切换语言" class="x-header-tool-img">
-                <LanguageSvg />
-            </el-icon>
-        </div> -->
+        <div class="x-header-tool" v-if="showMenu?.includes('vip')" @click="router.push('/vip')">
+                <el-icon :size="26" class="x-header-tool-img">
+                    <IconVipSvg />
+                </el-icon>
+            </div>
         <div class="x-header-tool" v-if="showMenu?.includes('helper')" @click="toUse">
-            <el-icon alt="帮助" class="x-header-tool-img">
+            <el-icon alt="帮助" :size="26" class="x-header-tool-img"  color="rgba(255,255,255,0.5)">
                 <HelperSvg />
             </el-icon>
         </div>
         <div class="x-header-tool" v-if="showMenu?.includes('wechat')" @click="openWechatGroupDialog">
-            <el-icon alt="微信群" class="x-header-tool-img">
+            <el-icon alt="微信群" :size="26" class="x-header-tool-img" color="rgba(255,255,255,0.5)">
                 <IconWechatSvg />
             </el-icon>
         </div>

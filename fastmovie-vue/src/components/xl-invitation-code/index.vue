@@ -37,10 +37,8 @@
 <script setup lang="ts">
 import { $http } from '@/common/http';
 import { ResponseCode } from '@/common/const';
-import { useRouter } from 'vue-router';
 const visible = ref(false);
 const list = ref<any>([])
-const router = useRouter();
 const getList = () => {
     $http.get('/app/user/api/User/getUnusedInvitationCode').then((res: any) => {
         if (res.code === ResponseCode.SUCCESS) {

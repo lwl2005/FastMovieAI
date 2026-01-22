@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ResponseCode } from '@/common/const';
 import { $http } from '@/common/http';
-import { useRefs, useUserStore } from '@/stores';
+import { useUserStore } from '@/stores';
 import DramaSvg from '@/svg/icon/drama.vue'
 import ScriptSvg from '@/svg/icon/video-file.vue';
 import IconUploadImageSvg from '@/svg/icon/icon-upload-image.vue';
@@ -9,7 +9,6 @@ import IconUploadImageSvg from '@/svg/icon/icon-upload-image.vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import router from '@/routers';
 const userStore = useUserStore();
-const { USER } = useRefs(userStore);
 const SearchForm = reactive({
     page: 1,
     limit: 20,
@@ -51,7 +50,7 @@ const openUploadCoverDialog = (item: any) => {
     uploadCoverDialogVisible.value = true;
 }
 const uploadCoverLoading = ref(false);
-const beforeUpload = (file: File) => {
+const beforeUpload = (_file: File) => {
     if (!userStore.hasLogin()) {
         uploadCoverRef.value?.clearFiles();
         return false;
@@ -88,7 +87,7 @@ const handleUploadSuccess = (response: any) => {
         uploadCoverLoading.value = false;
     }
 }
-const handleUploadError = (error: any) => {
+const handleUploadError = () => {
     uploadCoverRef.value?.clearFiles();
     uploadCoverLoading.value = false;
 }

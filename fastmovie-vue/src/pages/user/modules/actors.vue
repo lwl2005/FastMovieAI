@@ -3,14 +3,12 @@ import { ResponseCode } from '@/common/const';
 import { setClipboard } from '@/common/functions';
 import { $http } from '@/common/http';
 import { usePush } from '@/composables/usePush';
-import { useWebConfigStore, useUserStore, useRefs } from '@/stores';
+import { useUserStore, useRefs } from '@/stores';
 const userStore = useUserStore();
 const { USERINFO } = useRefs(userStore);
-const webConfigStore = useWebConfigStore();
-const { WEBCONFIG } = useRefs(webConfigStore);
 const emit = defineEmits(['select']);
 const ActorSearch = reactive({
-    type: 'self',
+    type: 'personal',
     page: 1,
     limit: 10,
 })

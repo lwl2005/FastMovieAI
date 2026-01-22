@@ -120,7 +120,7 @@ const getTaskList = () => {
         if (res.code === ResponseCode.SUCCESS) {
             taskList.value = res.data.data;
         }
-    }).catch((error) => {
+    }).catch(() => {
     }).finally(() => {
         taskLoading.value = false;
     })
@@ -242,6 +242,7 @@ const addListener = () => {
             if (res.image) {
                 findItem.image = res.image;
             }
+            getTaskList();
         }
     });
 }

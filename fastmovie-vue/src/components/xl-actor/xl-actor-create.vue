@@ -47,7 +47,36 @@ const actorFormRules = reactive({
     age: [{ required: true, message: '请选择年龄', trigger: 'change' }],
     remarks: [{ required: true, message: '请输入备注', trigger: 'change' }],
 })
+const showForm=ref(false);
 const openActorCreateDialog = (actor?: any, drama_id?: string | number, episode_id?: string | number) => {
+    showForm.value = true;
+    actorImageModel.value = 'remarks';
+    actorDialogVisible.value = true;
+    nextTick(() => {
+        if (actor) {
+            actorForm.id = actor.id;
+            actorForm.headimg = actor.headimg;
+            actorForm.three_view_image = actor.three_view_image;
+            actorForm.name = actor.name;
+            actorForm.species_type = actor.species_type;
+            actorForm.gender = actor.gender;
+            actorForm.age = actor.age;
+            actorForm.remarks = actor.remarks;
+            actorForm.voice_channel = actor.voice_channel;
+            actorForm.voice_id = actor.voice_id;
+            actorForm.voice_name = actor.voice_name;
+            actorForm.voice_model_id = actor.voice_model_id;
+            actorForm.drama_id = drama_id;
+            actorForm.episode_id = episode_id;
+        } else {
+            actorForm.drama_id = drama_id;
+            actorForm.episode_id = episode_id;
+        }
+    })
+}
+const uploadActor = (actor?: any, drama_id?: string | number, episode_id?: string | number) => {
+    showForm.value = false;
+    actorImageModel.value = 'upload';
     actorDialogVisible.value = true;
     nextTick(() => {
         if (actor) {
@@ -228,22 +257,24 @@ const handleVoiceSuccess = (data: any) => {
 }
 defineExpose({
     open: openActorCreateDialog,
+    upload: uploadActor,
     close: cancelActorDialog,
     subscribe: subscribe
 })
 </script>
 <template>
     <div>
-        <el-dialog v-model="actorDialogVisible" class="generate-scene-dialog" draggable width="min(100%,840px)" append-to-body
+        <el-dialog v-model="actorDialogVisible" class="generate-scene-dialog" draggable :width="showForm ? 'min(100%,840px)' : 'min(100%,420px)'" append-to-body
             @close="cancelActorDialog">
             <template #header>
-                <span class="font-weight-600" v-if="!actorForm.id">创建演员</span>
+                <span class="font-weight-600" v-if="!showForm">上传演员</span>
+                <span class="font-weight-600" v-else-if="!actorForm.id">创建演员</span>
                 <span class="font-weight-600" v-else>编辑演员</span>
             </template>
             <el-form label-position="top" :model="actorForm" :rules="actorFormRules" ref="actorFormRef"
                 class="actor-form" :disabled="actorForm.status_enum.value !== 'initializing'">
                 <div class="flex grid-gap-4 flex-y-flex-start">
-                    <div class="flex-1 grid-columns-6 grid-gap-4">
+                    <div class="flex-1 grid-columns-6 grid-gap-4" v-if="showForm">
                         <el-form-item label="演员名称" prop="title" class="grid-column-3">
                             <el-input v-model="actorForm.name" placeholder="请输入演员名称"
                                 class="actor-form-input bg-overlay" />

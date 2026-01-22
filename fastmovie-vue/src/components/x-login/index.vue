@@ -7,7 +7,6 @@ import { ElMessage } from 'element-plus';
 import IconLoginPhoneSvg from '@/svg/icon/icon-login-phone.vue';
 import IconLoginWechatSvg from '@/svg/icon/icon-login-wechat.vue';
 import IconSecuritySvg from '@/svg/icon/icon-security.vue';
-import router from '@/routers';
 const userStore = useUserStore()
 const vcode = useVcode()
 const mobileVcode = useVcode() // 用于补充手机号的验证码

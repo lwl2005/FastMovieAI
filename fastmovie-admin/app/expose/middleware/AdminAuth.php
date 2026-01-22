@@ -13,7 +13,7 @@ use Webman\MiddlewareInterface;
 use Webman\Http\Response;
 use Webman\Http\Request;
 use loong\oauth\facade\Auth;
-
+use support\Log;
 /**
  * 后台应用必须继承此中间件，否者无法正常访问
  */
@@ -36,6 +36,7 @@ class AdminAuth implements MiddlewareInterface
                 $response = $this->exception($th);
             } else {
                 if (config('app.debug')) {
+                    Log::error($th->getTraceAsString());
                     throw $th;
                 } else {
                     $response = response($th->getMessage(), 500);

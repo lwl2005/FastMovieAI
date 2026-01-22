@@ -3,7 +3,7 @@
         <div class="stars small" ref="smallStars"></div>
         <div class="stars big" ref="bigStars"></div>
 
-        <IconCloseSvg class="close-btn" @click="router.replace('/')" />
+        <IconCloseSvg class="close-btn" @click="router.back()" />
         <div class="h1 font-weight-bold">充值积分</div>
 
         <div class="mt-7">
@@ -40,9 +40,11 @@
             </el-scrollbar>
         </div>
 
+        <!-- <div class="btn-wrapper"> -->
         <el-button class="btn" color="#ffffff" round @click="submit">
             立即充值
         </el-button>
+        <!-- </div> -->
 
         <xl-pay ref="payDialogRef" type="points" :id="pointsId" :price="currentPrice" />
     </div>
@@ -179,10 +181,69 @@ onMounted(() => {
     text-decoration: line-through;
 }
 
-.btn {
-    margin-top: 60px;
-    width: 290px;
-    padding: 18px 0;
+.btn-wrapper {
+    // position: relative;
+    // margin-top: 60px;
+    // width: 290px;
+    // border-radius: 30px;
+    // padding: 2px;
+    // background: #ffffff;
+    // overflow: hidden;
+
+    // &::before {
+    //     content: '';
+    //     position: absolute;
+    //     inset: 0;
+    //     border-radius: 30px;
+    //     padding: 2px;
+    //     background: conic-gradient(
+    //         from 0deg,
+    //         transparent 0deg,
+    //         transparent 320deg,
+    //         #ff6b6b 330deg,
+    //         #4ecdc4 340deg,
+    //         #45b7d1 350deg,
+    //         #f9ca24 360deg,
+    //         #f0932b 370deg,
+    //         #eb4d4b 380deg,
+    //         transparent 390deg,
+    //         transparent 360deg
+    //     );
+    //     -webkit-mask: 
+    //         linear-gradient(#fff 0 0) content-box, 
+    //         linear-gradient(#fff 0 0);
+    //     -webkit-mask-composite: xor;
+    //     mask: 
+    //         linear-gradient(#fff 0 0) content-box, 
+    //         linear-gradient(#fff 0 0);
+    //     mask-composite: exclude;
+    //     animation: marquee-border 2s linear infinite;
+    // }
+
+    // &::after {
+    //     content: '';
+    //     position: absolute;
+    //     inset: 2px;
+    //     background: #ffffff;
+    //     border-radius: 28px;
+    //     z-index: 1;
+    // }
+
+    .btn {
+        margin-top: 30px;
+        width: 290px;
+        padding: 18px 60px;
+    }
+}
+
+@keyframes marquee-border {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .stars {

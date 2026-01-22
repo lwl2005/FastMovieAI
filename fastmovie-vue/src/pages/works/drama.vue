@@ -53,7 +53,7 @@ const getDetails = () => {
             }).then(() => {
                 getDetails();
             }).catch(() => {
-                router.push('/works');
+                router.push('/user');
             });
         }
     }).catch(() => {
@@ -65,7 +65,7 @@ const getDetails = () => {
         }).then(() => {
             getDetails();
         }).catch(() => {
-            router.push('/works');
+            router.push('/user');
         });
     }).finally(() => {
         loading.value = false;

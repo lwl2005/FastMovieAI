@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { ResponseCode } from '@/common/const';
-import { setClipboard } from '@/common/functions';
 import { $http } from '@/common/http';
-import IconBatchSvg from '@/svg/icon/icon-batch.vue';
 import IconModelSvg from '@/svg/icon/icon-model.vue';
 import IconPointsSvg from '@/svg/icon/icon-points.vue';
 import IconReplaceSvg from '@/svg/icon/icon-replace.vue';
 import { useWebConfigStore, useUserStore, useRefs } from '@/stores';
 import { useRoute } from 'vue-router';
-import { Loading } from '@element-plus/icons-vue';
+import { Loading, UploadFilled } from '@element-plus/icons-vue';
 import { usePoints } from '@/composables/usePoints';
 import { usePush } from '@/composables/usePush';
 const route = useRoute();
@@ -17,6 +15,22 @@ const { USERINFO } = useRefs(userStore);
 const webConfigStore = useWebConfigStore();
 const { WEBCONFIG } = useRefs(webConfigStore);
 const drama_id = ref<string | number>(route.params.drama_id as string | number)
+const episode_id = ref<string | number>(route.params.episode_id as string | number)
+const emit = defineEmits(['update:drama']);
+const dramaInfo = ref<any>({});
+const getDramaInfo = () => {
+    if (!drama_id.value) return;
+    $http.get('/app/shortplay/api/Works/details', { params: { id: drama_id.value } }).then((res: any) => {
+        if (res.code === ResponseCode.SUCCESS) {
+            dramaInfo.value = res.data;
+            emit('update:drama', dramaInfo.value);
+        } else {
+            ElMessage.error(res.msg);
+        }
+    }).catch(() => {
+        ElMessage.error('获取短剧详情失败');
+    })
+}
 const ActorSearch = reactive({
     type: 'drama',
     name: '',
@@ -25,6 +39,7 @@ const ActorSearch = reactive({
     gender: null,
     age: null,
     drama_id: drama_id.value,
+    episode_id: episode_id.value
 })
 const actorList = ref<any[]>([]);
 const loading = ref(false);
@@ -33,6 +48,7 @@ const currentActor = ref<any>();
 const currentActorForm = ref<any>({
     actor_id: '',
     drama_id: drama_id.value,
+    episode_id: episode_id.value,
     name: '',
     species_type: null,
     gender: null,
@@ -51,27 +67,32 @@ watch(actorList, () => {
     try {
         const find = actorList.value.find((item: any) => item.id === currentActor.value?.id);
         if (find) {
-            currentActor.value = undefined;
             handleCurrentActor(find)
         } else {
-            currentActor.value = undefined;
-            currentActorForm.value = {
-                id: '',
-                drama_id: drama_id.value,
-                name: '',
-                species_type: null,
-                gender: null,
-                age: null,
-                remarks: '',
-                image_model_id: null,
-                three_view_model_id: null,
-                image_state: false,
-                three_view_image_state: false,
-                image_reference_state: false,
-                reference_headimg: '',
-                image: '',
-                three_view_image: '',
-            };
+            const defaultActor = actorList.value.find((item: any) => item.is_edit);
+            if (defaultActor) {
+                handleCurrentActor(defaultActor);
+            } else {
+                currentActor.value = undefined;
+                currentActorForm.value = {
+                    id: '',
+                    drama_id: drama_id.value,
+                    episode_id: episode_id.value,
+                    name: '',
+                    species_type: null,
+                    gender: null,
+                    age: null,
+                    remarks: '',
+                    image_model_id: null,
+                    three_view_model_id: null,
+                    image_state: false,
+                    three_view_image_state: false,
+                    image_reference_state: false,
+                    reference_headimg: '',
+                    image: '',
+                    three_view_image: '',
+                };
+            }
         }
     } catch (error) {
         console.error('watch actorList error', error);
@@ -91,7 +112,7 @@ const getActorList = () => {
 }
 const previewImageVisible = ref(false);
 const imageList = ref<any[]>([]);
-const handlePreviewImage = (currentItem: any) => {
+/* const handlePreviewImage = (currentItem: any) => {
     if (!currentItem.headimg && !currentItem.three_view_image) return;
     imageList.value = [currentItem.headimg, currentItem.three_view_image];
     if (currentItem.character_look_id) {
@@ -100,7 +121,7 @@ const handlePreviewImage = (currentItem: any) => {
     nextTick(() => {
         previewImageVisible.value = true;
     })
-}
+} */
 const taskList = ref<any[]>([]);
 const taskLoading = ref(false);
 const taskSearch = reactive({
@@ -126,7 +147,7 @@ const getTaskList = () => {
     })
 }
 const handleCurrentActor = (item: any) => {
-    if (!item.is_edit || item.id === currentActor.value?.id) {
+    if (!item.is_edit) {
         return;
     }
     currentActor.value = item;
@@ -218,10 +239,9 @@ const handleReplaceActor = (item: any) => {
         task_id: item.id
     }).then((res: any) => {
         if (res.code === ResponseCode.SUCCESS) {
-            if (currentActor.value.character_look_id) {
+            currentActor.value.headimg = item.result.image_path;
+            if (!currentActor.value.character_look_id) {
                 currentActor.value.origin_headimg = item.result.image_path;
-            } else {
-                currentActor.value.headimg = item.result.image_path;
             }
             currentActor.value.status = res.data.status;
             currentActor.value.status_enum = res.data.status_enum;
@@ -235,41 +255,11 @@ const handleReplaceActor = (item: any) => {
         replaceActorLoading.value = false;
     })
 }
-const batchGenerateDialogVisible = ref(false);
-const batchGenerateLoading = ref(false);
-const batchGenerateLength = ref(0);
-const batchGenerateList = ref<any[]>([]);
-const handleBatchGenerate = () => {
-    batchGenerateDialogVisible.value = true;
-    batchGenerateList.value = actorList.value.filter((item: any) => item.status === 'initializing')
-    batchGenerateLength.value = batchGenerateList.value.length
-}
-const batchPoints = usePoints([model, threeViewModel], batchGenerateLength);
-const submitBatchGenerate = () => {
-    batchGenerateLoading.value = true;
-    Promise.all(batchGenerateList.value.map((item: any) => {
-        return $http.post('/app/shortplay/api/Actor/initializing', {
-            id: item.id,
-            image_reference_state: item.headimg ? true : false,
-            reference_headimg: item.headimg ? item.headimg : '',
-            image_state: true,
-            three_view_image_state: true,
-            image_model_id: model.value.id,
-            three_view_model_id: threeViewModel.value.id,
-        })
-    })).then(() => {
-        getActorList();
-    }).catch((error) => {
-        console.error('submitBatchGenerate error', error);
-    }).finally(() => {
-        batchGenerateLoading.value = false;
-        batchGenerateDialogVisible.value = false;
-    })
-}
 const handleDeleteActor = (item: any) => {
-    $http.post('/app/shortplay/api/Drama/deleteActor', {
+    $http.post('/app/shortplay/api/DramaEpisode/deleteActor', {
         id: item.id,
         drama_id: drama_id.value,
+        episode_id: episode_id.value,
     }).then((res: any) => {
         if (res.code === ResponseCode.SUCCESS) {
             ElMessage.success(res.msg);
@@ -283,15 +273,16 @@ const voiceDialogRef = ref<any>();
 const handleVoiceActor = (item: any) => {
     currentActor.value = item;
     voiceDialogRef.value?.open({
-        drama_id: drama_id.value,
-        actor: item
+        modelScene: 'dialogue_voice',
+        voice: item.voice
     });
 }
 const handleVoiceSuccess = (data: any) => {
     $http.post('/app/shortplay/api/Actor/voice', {
         id: currentActor.value.id,
         drama_id: drama_id.value,
-        apply_scope: 'drama',
+        episode_id: episode_id.value,
+        apply_scope: 'episode',
         voice: data
     }).then((res: any) => {
         if (res.code === ResponseCode.SUCCESS) {
@@ -313,10 +304,11 @@ const handleCharacterLookActor = (item: any) => {
 const handleCharacterLookSelect = (item: any) => {
     let url = '/app/shortplay/api/Generate/characterLook';
     if (item.type === 'actor') {
-        url = '/app/shortplay/api/Drama/CharacterLook';
+        url = '/app/shortplay/api/DramaEpisode/CharacterLook';
     }
     $http.post(url, {
         drama_id: drama_id.value,
+        episode_id: episode_id.value,
         actor_id: currentActor.value.id,
         character_look_id: item.id,
         actor_costume_model_id: item.actor_costume_model_id,
@@ -325,7 +317,7 @@ const handleCharacterLookSelect = (item: any) => {
         if (res.code === ResponseCode.SUCCESS) {
             ElMessage.success(res.msg);
             const find = actorList.value.find((n: any) => n.id === res.data.id);
-            if (find) {
+            if (item.type != 'actor' && find) {
                 find.character_look_state = 1;
             } else {
                 getActorList();
@@ -335,6 +327,7 @@ const handleCharacterLookSelect = (item: any) => {
         }
     })
 }
+
 const { subscribe, unsubscribeAll } = usePush();
 const addListener = () => {
     subscribe('private-generateactorimage-' + USERINFO.value?.user, (res: any) => {
@@ -362,6 +355,7 @@ const addListener = () => {
 }
 onMounted(() => {
     getActorList();
+    getDramaInfo();
     addListener();
 })
 onUnmounted(() => {
@@ -375,26 +369,7 @@ onUnmounted(() => {
             <div class="flex-1 flex flex-column grid-gap-4 overflow-hidden">
                 <el-form class="flex flex-center grid-gap-4" @submit.prevent="getActorList">
                     <el-form-item class="mb-0">
-                        <el-button type="success"
-                            :disabled="actorList.filter((item: any) => item.status === 'initializing').length <= 0"
-                            @click="handleBatchGenerate">
-                            <el-icon size="16">
-                                <IconBatchSvg />
-                            </el-icon>
-                            <span>批量生成</span>
-                        </el-button>
-                    </el-form-item>
-                    <el-form-item class="mb-0">
                         <el-input v-model="ActorSearch.name" placeholder="搜索演员" clearable @change="getActorList">
-                            <template #suffix>
-                                <el-icon>
-                                    <Search />
-                                </el-icon>
-                            </template>
-                        </el-input>
-                    </el-form-item>
-                    <el-form-item class="mb-0">
-                        <el-input v-model="ActorSearch.actor_id" placeholder="演员ID" clearable @change="getActorList">
                             <template #suffix>
                                 <el-icon>
                                     <Search />
@@ -429,60 +404,71 @@ onUnmounted(() => {
                     <div
                         class="grid-columns-xxl-7 grid-columns-xl-6 grid-columns-lg-5 grid-columns-md-4 grid-columns-sm-3 grid-columns-xs-2 grid-columns-p-1 grid-gap-4">
                         <div class="grid-column-1 rounded-4 p-4 actor-item flex flex-column flex-center grid-gap-4 pointer bg-overlay"
-                            @click="actorCreateRef?.open?.(null, ActorSearch.drama_id)">
+                            @click="actorCreateRef?.open?.(null, ActorSearch.drama_id, ActorSearch.episode_id)">
                             <el-icon class="rounded-4" size="20"
                                 style="height: 40px; width: 40px;background-color: var(--el-fill-color-dark);">
                                 <Plus />
                             </el-icon>
                             <span>添加演员</span>
                         </div>
-                        <div class="grid-column-1 input-button rounded-4 flex flex-column flex-center grid-gap-2 actor-item bg-overlay"
-                            v-for="item in actorList" :key="item.id">
-                            <el-avatar :src="item.headimg" class="actor-avatar bg-mosaic"
-                                :class="{ 'pointer': item.headimg }" @click="handlePreviewImage(item)" fit="contain">
+                        <div class="grid-column-1 input-button rounded-4 flex flex-column flex-center grid-gap-2 actor-item bg-overlay border"
+                            :class="{ 'border-success': item.id === currentActorForm.id }" v-for="item in actorList"
+                            :key="item.id">
+                            <el-avatar :src="item.headimg" class="actor-avatar bg-mosaic" fit="cover" :title="item.is_edit?item.name:'公共角色不可编辑'">
                                 {{ item.name }}
                             </el-avatar>
+                            <div class="actor-edit-mask flex flex-column grid-gap-4 flex-center pointer"
+                                v-if="item.is_edit" @click="handleCurrentActor(item)">
+                                <div class="flex flex-center bg-overlay rounded-round p-2 pointer grid-gap-2"
+                                    @click.stop="actorCreateRef?.upload?.(item, ActorSearch.drama_id, ActorSearch.episode_id)">
+                                    <el-icon size="16">
+                                        <UploadFilled />
+                                    </el-icon>
+                                    <span class="h10">手动上传</span>
+                                </div>
+                                <el-popconfirm title="确定删除该演员吗？" width="fit-content" @confirm="handleDeleteActor(item)"
+                                    placement="bottom-end">
+                                    <template #reference>
+                                        <div class="flex flex-center bg-overlay rounded-round p-2 pointer grid-gap-2"
+                                            @click.stop>
+                                            <el-icon size="16">
+                                                <Delete />
+                                            </el-icon>
+                                            <span class="h10">删除演员</span>
+                                        </div>
+                                    </template>
+                                </el-popconfirm>
+                            </div>
                             <div class="flex grid-gap-2 actor-status">
-                                <span class="actor-tag pointer" title="复制演员"
-                                    @click.stop="setClipboard(`@${item.name}(${item.actor_id}) `)">{{
-                                        item.actor_id
-                                    }}</span>
+                                <!-- <span class="actor-tag pointer" title="复制演员"
+                                        @click.stop="setClipboard(`@${item.name}(${item.actor_id}) `)">{{
+                                            item.actor_id
+                                        }}</span> -->
                                 <div class="flex-1"></div>
                                 <div class="flex flex-column flex-y-flex-end grid-gap-2">
                                     <span class="actor-tag" :class="[`actor-tag--` + item.status_enum.props.type]">
                                         {{ item.status_enum.label }}
                                     </span>
-                                    <el-popconfirm title="确定删除该演员吗？" width="fit-content"
-                                        @confirm="handleDeleteActor(item)" placement="bottom-end">
-                                        <template #reference>
-                                            <div class="actor-tag p-2 actor-delete pointer">
-                                                <el-icon size="16">
-                                                    <Delete />
-                                                </el-icon>
-                                            </div>
-                                        </template>
-                                    </el-popconfirm>
                                 </div>
                             </div>
                             <div class="flex flex-column grid-gap-2 actor-info">
                                 <div class="actor-name flex flex-center grid-gap-1"
-                                    :class="{ 'pointer': item.is_edit, 'actor-name--success': item.id === currentActorForm.id }"
-                                    @click.stop="handleCurrentActor(item)">
+                                    :class="{ 'pointer': item.is_edit, 'actor-name--success': item.id === currentActorForm.id }">
                                     <el-icon>
                                         <UserFilled />
                                     </el-icon>
                                     <span>{{ item.name }}</span>
                                 </div>
-                                <div class="flex grid-gap-2">
-                                    <span class="actor-tag">{{ item.species_type_enum?.label
-                                    }}</span>
-                                    <span class="actor-tag">{{ item.gender_enum?.label }}</span>
-                                    <span class="actor-tag">{{ item.age_enum?.label }}</span>
-                                </div>
+                                <!-- <div class="flex grid-gap-2">
+                                        <span class="actor-tag">{{ item.species_type_enum?.label
+                                            }}</span>
+                                        <span class="actor-tag">{{ item.gender_enum?.label }}</span>
+                                        <span class="actor-tag">{{ item.age_enum?.label }}</span>
+                                    </div> -->
                             </div>
                             <div class="actor-action flex flex-center px-4">
                                 <el-button text bg @click="handleVoiceActor(item)" class="flex-1 text-ellipsis-1">
-                                    <span v-if="item.voice_name">音色:{{ item.voice_name }}</span>
+                                    <span v-if="item.voice">音色:{{ item.voice.name }}</span>
                                     <span v-else>演员音色</span>
                                 </el-button>
                                 <el-button text bg @click="handleCharacterLookActor(item)"
@@ -501,10 +487,6 @@ onUnmounted(() => {
                     <div class="border-bottom flex flex-center">
                         <el-input v-model="currentActorForm.name" placeholder="角色演员" size="large"
                             class="actor-form-input flex-1">
-                            <template #suffix>
-                                <el-button type="primary" bg text size="small"
-                                    @click="actorCreateRef?.open?.(currentActor, ActorSearch.drama_id)">编辑</el-button>
-                            </template>
                         </el-input>
                     </div>
                     <div class="flex flex-column grid-gap-2 px-4">
@@ -539,7 +521,7 @@ onUnmounted(() => {
                                         <el-avatar :src="model.icon" :alt="model.name" shape="square"
                                             :size="16"></el-avatar>
                                         <span class="h10 text-ellipsis-1" style="max-width: 60px;">{{ model.name
-                                        }}</span>
+                                            }}</span>
                                         <el-icon size="16" class="pointer" @click.stop="handleModelSelect()">
                                             <Close />
                                         </el-icon>
@@ -640,7 +622,7 @@ onUnmounted(() => {
                                 <el-avatar :src="item.result.image_path" fit="contain" shape="square" :size="206">
                                 </el-avatar>
                                 <div class="flex flex-center grid-gap-2 task-item-replace pointer"
-                                    v-if="item.result.image_path !== currentActor.image && item.result.image_path !== currentActor.origin_headimg"
+                                    v-if="item.result.image_path !== currentActor.headimg && item.result.image_path !== currentActor.origin_headimg"
                                     @click="handleReplaceActor(item)">
                                     <el-icon>
                                         <Loading class="circular" v-if="replaceActorLoading" />
@@ -658,34 +640,9 @@ onUnmounted(() => {
         </div>
         <el-image-viewer :url-list="imageList" v-if="previewImageVisible" @close="previewImageVisible = false" />
         <xl-actor-create ref="actorCreateRef" @success="getActorList" />
-        <el-dialog v-model="batchGenerateDialogVisible" class="generate-storyboard-dialog" draggable width="800px">
-            <template #header>
-                <span class="font-weight-600">批量生成演员</span>
-            </template>
-            <div class="flex grid-gap-10">
-                <xl-models title="形象模型" v-model="currentActorForm.image_model_id" @select="handleModelSelect" no-init
-                    class="flex-1 bg-overlay rounded-4 p-4" scene="actor_image" />
-                <xl-models title="三视图模型" v-model="currentActorForm.three_view_model_id"
-                    @select="handleThreeViewModelSelect" class="flex-1 bg-overlay rounded-4 p-4" no-init
-                    scene="actor_three_view_image" />
-            </div>
-            <template #footer>
-                <el-button type="info" @click="batchGenerateDialogVisible = false"
-                    :disabled="batchGenerateLoading">取消</el-button>
-                <div class="flex-1"></div>
-                <div class="flex flex-center grid-gap-2">
-                    <el-icon size="16">
-                        <IconPointsSvg />
-                    </el-icon>
-                    <span class="h10">{{ batchPoints }}</span>
-                </div>
-                <el-button type="success" icon="Check" @click="submitBatchGenerate"
-                    :disabled="!currentActorForm.image_model_id || !currentActorForm.three_view_model_id"
-                    :loading="batchGenerateLoading">生成</el-button>
-            </template>
-        </el-dialog>
         <xl-voice ref="voiceDialogRef" @success="handleVoiceSuccess" />
-        <xl-character-look ref="characterLookRef" @select="handleCharacterLookSelect" :query="{ drama_id: drama_id }" />
+        <xl-character-look ref="characterLookRef" @select="handleCharacterLookSelect"
+            :query="{ drama_id: drama_id, episode_id: episode_id }" />
     </div>
 </template>
 <style lang="scss" scoped>
@@ -698,6 +655,7 @@ onUnmounted(() => {
     .actor-form-wrapper {
         width: 450px;
         height: 100%;
+        overflow: hidden;
     }
 
     .actor-item {
@@ -722,6 +680,24 @@ onUnmounted(() => {
             height: 260px;
             width: 100%;
             border-radius: 0px;
+        }
+
+        .bg-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .actor-edit-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 260px;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+
+            &:hover {
+                opacity: 1;
+            }
         }
 
         .actor-status {

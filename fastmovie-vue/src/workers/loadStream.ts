@@ -2,11 +2,15 @@ import { ImageDurationClip } from '@/common/av-cliper/ImageDurationClip';
 import { MP4Clip, ImgClip } from '@webav/av-cliper';
 
 interface WorkerMessage {
-    type: 'init' | 'load' | 'play' | 'pause' | 'destroy' | 'stop' | 'switchClip';
+    type: 'init' | 'load' | 'play' | 'pause' | 'destroy' | 'stop' | 'switchClip' | 'resize';
     offscreen?: OffscreenCanvas;
     TrackResource?: TrackResourceInterface[];
     index?: number;
     time?: number; // 用于 seek
+    size?: {
+        width: number;
+        height: number;
+    };
 }
 
 let canvas: OffscreenCanvas;
@@ -38,6 +42,13 @@ const initData = (data: WorkerMessage) => {
     Tracks = [];
 
 };
+const resize = (data: WorkerMessage) => {
+    if (data.size) {
+        canvas.width = data.size.width;
+        canvas.height = data.size.height;
+    }
+    renderFirstFrame();
+}
 
 /** 停止视频 */
 const stop = () => {
@@ -129,7 +140,7 @@ const switchToNextClip = async () => {
 /** 播放视频 */
 const FPS = 60;
 const FRAME_INTERVAL = Math.floor(1000 / FPS);
-console.log('FPS', FPS, FRAME_INTERVAL+'ms');
+console.log('FPS', FPS, FRAME_INTERVAL + 'ms');
 let currentTime = 0;
 const renderFrame = async (video: any) => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -160,7 +171,7 @@ const renderFrame = async (video: any) => {
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 2;
         // ctx.textBaseline = 'middle';
-        fillText(dialogue.content, canvas.width / 2, drawHeight - 30, maxTextWidth);
+        fillText(dialogue.content, canvas.width / 2, drawHeight - 130, maxTextWidth);
     }
     if (currentTrackResource?.narration) {
         ctx.fillStyle = 'white';
@@ -250,6 +261,9 @@ onmessage = async (e: MessageEvent<WorkerMessage>) => {
             currentVideoClip = await loadClip(currentTrackResourceIndex);
             renderFirstFrame();
             preloadNext(currentTrackResourceIndex + 1);
+            break;
+        case 'resize':
+            resize(data);
             break;
         case 'play':
             if (currentTrackResourceIndex !== data.index) {

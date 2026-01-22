@@ -217,7 +217,7 @@ defineExpose({
             </el-empty>
             <template v-else>
                 <div class="p-6 bg-gray rounded-4 flex flex-column grid-gap-4 scene-item"
-                    v-for="(item, index) in sceneList" :class="{ 'scene-item-current': item.id === currentSceneId }"
+                    v-for="item in sceneList" :class="{ 'scene-item-current': item.id === currentSceneId }"
                     :key="item.id">
                     <div class="flex grid-gap-4 flex-center">
                         <span class="text-dark h10 font-weight-600 py-4">#{{ item.id }}</span>

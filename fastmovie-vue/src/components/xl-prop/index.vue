@@ -2,7 +2,6 @@
 import { ResponseCode } from '@/common/const';
 import { truncate } from '@/common/functions';
 import { $http } from '@/common/http';
-import { useRefs, useWebConfigStore } from '@/stores';
 const props = withDefaults(defineProps<{
     query?: any
     types?: any[]
@@ -10,8 +9,6 @@ const props = withDefaults(defineProps<{
     query: () => ({}),
     types: () => ([]),
 });
-const webConfigStore = useWebConfigStore();
-const { WEBCONFIG } = useRefs(webConfigStore);
 const emit = defineEmits(['select']);
 const PropSearch = reactive({
     type: 'all',
