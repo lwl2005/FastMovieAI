@@ -11,8 +11,9 @@ $routes = [];
 for ($i = 0; $i < $len; $i++) {
     $value = $controllersClass[$i];
     $controllerName = str_replace('Controller', '', basename($value, '.php'));
-    $classStr = str_replace([base_path(), '.php', '/'], ['', '', '\\'], $value);
-    $reflection = new \ReflectionClass($classStr);
+    $classStr = str_replace([base_path() . '/', '.php'], ['', ''], $value);
+    $classStr = str_replace('/', '\\', $classStr);
+    $reflection = new \ReflectionClass('\\' . $classStr);
 
     // 忽略抽象类、接口
     if ($reflection->isAbstract() || $reflection->isInterface()) {
@@ -35,8 +36,9 @@ if (!empty($controllersVersionClass)) {
         $value = $controllersVersionClass[$i];
         $version = basename(dirname($value));
         $controllerName = str_replace('Controller', '', basename($value, '.php'));
-        $classStr = str_replace([base_path(), '.php', '/'], ['', '', '\\'], $value);
-        $reflection = new \ReflectionClass($classStr);
+        $classStr = str_replace([base_path() . '/', '.php'], ['', ''], $value);
+        $classStr = str_replace('/', '\\', $classStr);
+        $reflection = new \ReflectionClass('\\' . $classStr);
 
         // 忽略抽象类、接口
         if ($reflection->isAbstract() || $reflection->isInterface()) {
