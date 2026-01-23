@@ -5,12 +5,6 @@
     "sort": 5,
     "children": [
         {
-            "title": "控制台",
-            "icon": "ElementPlus",
-            "path": "/app/marketing/control/Index/index",
-            "component": "databoard"
-        },
-        {
             "title": "优惠券",
             "icon": "Coupon",
             "path": "/app/marketing/control/Coupon/index",

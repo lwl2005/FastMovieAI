@@ -13,7 +13,7 @@ class Article extends Validate
         'thumb'=>'array',
         'keywords'=>'length:0,200',
         'description'=>'length:0,300',
-        'alias'=>'alphaDash|length:0,30|unique:plugin_article',
+        'alias'=>'alphaDash|length:0,30',
         'content'=>'require'
     ];
 
@@ -26,7 +26,6 @@ class Article extends Validate
         'description.length' => '描述长度不能超过300个字符',
         'alias.alphaDash' => '别名只能是字母、数字、下划线和破折号',
         'alias.length' => '别名长度不能超过30个字符',
-        'alias.unique' => '别名已存在',
         'content.require' => '请输入内容'
     ];
     protected $scene = [

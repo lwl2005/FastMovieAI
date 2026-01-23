@@ -109,44 +109,8 @@
                         "path": "/app/control/control/Platform/wechat",
                         "children": [
                             {
-                                "title": "WeChat Mini Program",
-                                "path": "/app/control/control/Platform/wechat_miniproject",
-                                "component": "form"
-                            },
-                            {
                                 "title": "WeChat Official Account",
                                 "path": "/app/control/control/Platform/wechat_official_account",
-                                "component": "form"
-                            },
-                            {
-                                "title": "WeChat Open Platform",
-                                "path": "/app/control/control/Platform/wechat_open_platform",
-                                "component": "form"
-                            },
-                            {
-                                "title": "App Platform",
-                                "path": "/app/control/control/Platform/wechat_app_platform",
-                                "component": "form"
-                            },
-                            {
-                                "title": "H5 Platform",
-                                "path": "/app/control/control/Platform/wechat_h5_platform",
-                                "component": "form"
-                            },
-                            {
-                                "title": "PC Platform",
-                                "path": "/app/control/control/Platform/wechat_pc_platform",
-                                "component": "form"
-                            }
-                        ]
-                    },
-                    {
-                        "title": "支付宝",
-                        "path": "/app/control/control/Platform/alipay",
-                        "children": [
-                            {
-                                "title": "Alipay Mini Program",
-                                "path": "/app/control/control/Platform/alipay_miniproject",
                                 "component": "form"
                             }
                         ]

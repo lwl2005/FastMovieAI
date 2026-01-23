@@ -21,6 +21,15 @@ class IndexController
         }
         return view($templateFile, $config->toArray());
     }
+    public function fastmovie(Request $request)
+    {
+        $config = new Config('basic');
+        $templateFile = public_path('template/fastmovie.html');
+        if (!file_exists($templateFile)) {
+            return '请检查 /public/template/fastmovie.html 是否存在。';
+        }
+        return view($templateFile, $config->toArray());
+    }
     public function test(Request $request)
     {
         //当前连接

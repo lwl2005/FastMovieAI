@@ -132,6 +132,12 @@ class OrdersController extends Basic
                 'filterable' => true
             ]
         ]);
+        $formBuilder->add('user_id', '用户ID', 'input', null, [
+            'options' => [],
+            'props' => [
+                'placeholder' => '用户搜索',
+            ]
+        ]);
         $builder->addScreen($formBuilder);
         $builder->add('id', 'ID', [
             'props' => [
@@ -298,6 +304,10 @@ class OrdersController extends Basic
         $uid = $request->get('uid');
         if ($uid) {
             $where[] = ['uid', '=', $uid];
+        }
+        $user_id = $request->get('user_id');
+        if ($user_id) {
+            $where[] = ['uid', '=', $user_id];
         }
         $list = PluginFinanceOrders::where($where)
             ->with(['user' => function ($query) {

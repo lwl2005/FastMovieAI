@@ -189,6 +189,18 @@ return [
         ]
     ],
     [
+        'title' => '登录背景图',
+        'field' => 'login_background_image_url',
+        'value' => '',
+        'component' => 'bundle',
+        'extra' => [
+            'props' => [
+                'accept' => 'image/*',
+                'multiple' => 1
+            ]
+        ]
+    ],
+    [
         'title' => '项目背景视频',
         'field' => 'project_background_video_url',
         'value' => '',

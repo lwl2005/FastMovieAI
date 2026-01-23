@@ -14,7 +14,7 @@ class TaskController extends Basic
         $limit = $request->get('limit', 10);
         $where = [];
         $where[] = ['uid', '=', $request->uid];
-        $where[] = ['status', '=', ModelTaskStatus::SUCCESS['value']];
+        $where[] = ['status', 'in', [ModelTaskStatus::WAIT['value'], ModelTaskStatus::PROCESSING['value'], ModelTaskStatus::WAIT_DOWNLOAD['value'], ModelTaskStatus::DOWNLOADING['value'], ModelTaskStatus::UPLOADING['value'], ModelTaskStatus::SUCCESS['value']]];
         $scene = $request->get('scene', 'all');
         if ($scene != 'all') {
             $where[] = ['scene', '=', $scene];

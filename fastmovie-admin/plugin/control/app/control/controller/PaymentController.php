@@ -21,7 +21,9 @@ class PaymentController extends Basic
     {
         $tabs = [];
         $PaymentConfig = PaymentConfig::where(['channels_uid' => $request->channels_uid])->select();
-        $Platform = Platform::getOptions();
+        $Platform = Platform::getOptions(function($value){
+            return $value['value'] === Platform::PC['value'];
+        });
         foreach ($Platform as $key => $item) {
             $channels = [];
             switch ($item['value']) {

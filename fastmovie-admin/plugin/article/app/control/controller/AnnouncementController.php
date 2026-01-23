@@ -8,6 +8,7 @@ use app\expose\build\builder\TableBuilder;
 use app\expose\enum\Action;
 use app\expose\enum\Examine;
 use app\expose\enum\State;
+use app\expose\enum\SubmitEvent;
 use app\expose\helper\Config;
 use plugin\article\app\Basic;
 use plugin\article\app\model\PluginArticle;
@@ -20,6 +21,7 @@ use plugin\notification\app\model\PluginNotificationMessageContent;
 use plugin\notification\expose\helper\Message;
 use plugin\notification\utils\enum\MessageScene;
 use plugin\user\app\model\PluginUser;
+use support\Log;
 use support\Request;
 use think\facade\Db;
 
@@ -260,12 +262,12 @@ class AnnouncementController extends Basic
                 $PluginArticle->subtitle = $D['subtitle'];
                 $PluginArticle->thumb = $D['thumb'];
                 $PluginArticle->channels_uid = $request->channels_uid;
-                $PluginArticle->keywords = $D['keywords'];
-                $PluginArticle->description = $D['description'];
+                // $PluginArticle->keywords = $D['keywords'];
+                // $PluginArticle->description = $D['description'];
                 $PluginArticle->alias =  'announcement';
-                $PluginArticle->view = $D['view'];
-                $PluginArticle->sort = $D['sort'];
-                $PluginArticle->source = $D['source'];
+                // $PluginArticle->view = $D['view'];
+                // $PluginArticle->sort = $D['sort'];
+                // $PluginArticle->source = $D['source'];
                 $PluginArticle->state = $D['state'];
                 $PluginArticle->push_crowd = $D['push_crowd'];
                 $PluginArticle->push_crowd_uids = $D['push_crowd_uids'];
@@ -309,13 +311,13 @@ class AnnouncementController extends Basic
                 $PluginArticle->title = $D['title'];
                 $PluginArticle->subtitle = $D['subtitle'];
                 $PluginArticle->thumb = $D['thumb'];
-                $PluginArticle->keywords = $D['keywords'];
-                $PluginArticle->description = $D['description'];
-                $PluginArticle->view = $D['view'];
-                $PluginArticle->sort = $D['sort'];
-                $PluginArticle->source = $D['source'];
+                // $PluginArticle->keywords = $D['keywords'];
+                // $PluginArticle->description = $D['description'];
+                // $PluginArticle->view = $D['view'];
+                // $PluginArticle->sort = $D['sort'];
+                // $PluginArticle->source = $D['source'];
                 $PluginArticle->state = $D['state'];
-                $PluginArticle->release_time = $D['release_time'];
+                // $PluginArticle->release_time = $D['release_time'];
                 $PluginArticle->push_crowd = $D['push_crowd'];
                 $PluginArticle->push_crowd_uids = $D['push_crowd_uids'];
                 $PluginArticle->save();
@@ -339,7 +341,7 @@ class AnnouncementController extends Basic
     }
     public function getFormBuilder()
     {
-        $builder = new FormBuilder(null, null, ['size' => 'large']);
+        $builder = new FormBuilder(null, null, ['size' => 'large', 'submitEvent' => SubmitEvent::SILENT]);
         $Component = new ComponentBuilder;
         $builder->add('classify_id', '所属分类', 'cascader', '', [
             'required' => true,
@@ -390,17 +392,6 @@ class AnnouncementController extends Basic
             'props' => [
                 'accept' => 'image/*',
                 'multiple' => 5
-            ]
-        ]);
-        $builder->add('description', '描述', 'input', '', [
-            'props' => [
-                'type' => 'textarea',
-                'maxlength' => 300,
-                'show-word-limit' => true,
-                'autosize' => [
-                    'minRows' => 3,
-                    'maxRows' => 6
-                ]
             ]
         ]);
         $builder->add('sort', '排序', 'input-number', 99, [
@@ -469,7 +460,7 @@ class AnnouncementController extends Basic
         if (file_exists($path)) {
             unlink($path);
         }
-        if ($PluginArticle->alias) {
+        if (isset($PluginArticle->alias) && $PluginArticle->alias) {
             $path = public_path('article/' . $PluginArticle->alias . '.html');
             if (file_exists($path)) {
                 unlink($path);
@@ -509,23 +500,10 @@ class AnnouncementController extends Basic
      * @param PluginArticle $PluginArticle 公告对象
      * @param string $content 公告内容
      * @param Request $request 请求对象
-     * @param bool $isUpdate 是否为更新操作，更新时会先删除旧的通知消息
+     * @param bool $isUpdate 是否为更新操作，更新时会同步更新已存在的消息
      */
     private function sendNotification($PluginArticle, $content, $request, $isUpdate = false)
     {
-        if (!$PluginArticle->push_crowd) {
-            // 如果是更新且没有设置推送受众，删除旧的通知消息
-            if ($isUpdate) {
-                $this->deleteNotificationMessages($PluginArticle->id);
-            }
-            return;
-        }
-        
-        // 如果是更新，先删除该公告相关的所有旧通知消息
-        if ($isUpdate) {
-            $this->deleteNotificationMessages($PluginArticle->id);
-        }
-        
         $uids = [];
         // 获取渠道ID
         $channels_uid = $request->channels_uid ?? $PluginArticle->channels_uid ?? null;
@@ -546,38 +524,101 @@ class AnnouncementController extends Basic
                 $uids = $PluginArticle->push_crowd_uids;
             }
         }
+        var_dump($uids);
         if (empty($uids)) {
             return;
         }
         // 获取当前管理员ID
         $form_uid = $request->uid ?? null;
-        // 为每个用户发送通知
+
+        // 如果是更新操作，先获取已存在的消息
+        $existingMessages = [];
+        if ($isUpdate) {
+            $where = [
+                'form_id' => $PluginArticle->id,
+                'scene' => MessageScene::ANNOUNCEMENT['value']
+            ];
+            if ($channels_uid) {
+                $where['channels_uid'] = $channels_uid;
+            }
+            $messages = PluginNotificationMessage::where($where)->select();
+            foreach ($messages as $message) {
+                $existingMessages[$message->uid] = $message;
+            }
+        }
+
+        // 为每个用户发送/更新通知
         foreach ($uids as $uid) {
             try {
-                $Message = new Message();
-                if ($channels_uid) {
-                    $Message->setChannelsUid($channels_uid);
+                // 如果是更新操作且消息已存在，则更新消息
+                if ($isUpdate && isset($existingMessages[$uid])) {
+                    $message = $existingMessages[$uid];
+                    // 更新消息基本信息
+                    $message->title = $PluginArticle->title;
+                    $message->subtitle = $PluginArticle->subtitle ?? null;
+                    if ($form_uid) {
+                        $message->form_uid = $form_uid;
+                    }
+                    $message->save();
+
+                    // 更新消息内容
+                    $messageContent = PluginNotificationMessageContent::where('message_id', $message->id)->find();
+                    if ($messageContent) {
+                        $messageContent->content = $content;
+                        $messageContent->save();
+                    } else {
+                        // 如果内容不存在，创建新内容
+                        $messageContent = new PluginNotificationMessageContent();
+                        $messageContent->message_id = $message->id;
+                        $messageContent->content = $content;
+                        $messageContent->save();
+                    }
+                } else {
+                    // 创建新消息
+                    $Message = new Message();
+                    if ($channels_uid) {
+                        $Message->setChannelsUid($channels_uid);
+                    }
+                    $Message->setUid($uid);
+                    if ($form_uid) {
+                        $Message->setFormUid($form_uid);
+                    }
+                    $Message->setFormId($PluginArticle->id);
+                    $Message->setScene(MessageScene::ANNOUNCEMENT['value']);
+                    $Message->setTitle($PluginArticle->title);
+                    $Message->setContent($content);
+                    if ($PluginArticle->subtitle) {
+                        $Message->setSubtitle($PluginArticle->subtitle);
+                    }
+                    $Message->setEffect('info');
+                    $Message->save();
                 }
-                $Message->setUid($uid);
-                if ($form_uid) {
-                    $Message->setFormUid($form_uid);
-                }
-                $Message->setFormId($PluginArticle->id);
-                $Message->setScene(MessageScene::ANNOUNCEMENT['value']);
-                $Message->setTitle($PluginArticle->title);
-                $Message->setContent($content);
-                if ($PluginArticle->subtitle) {
-                    $Message->setSubtitle($PluginArticle->subtitle);
-                }
-                $Message->setEffect('info');
-                $Message->save();
             } catch (\Throwable $th) {
                 // 记录错误但不中断流程
+                var_dump($th->getMessage());
                 continue;
             }
         }
+
+        // 如果是更新操作，删除不再需要的消息（用户列表变化的情况）
+        if ($isUpdate && !empty($existingMessages)) {
+            $currentUids = array_flip($uids);
+            foreach ($existingMessages as $uid => $message) {
+                // 如果该用户不在新的用户列表中，删除该消息
+                if (!isset($currentUids[$uid])) {
+                    try {
+                        PluginNotificationMessageContent::where('message_id', $message->id)->delete();
+                        $message->delete();
+                    } catch (\Throwable $th) {
+                        var_dump($th->getMessage());
+                        // 记录错误但不中断流程
+                        continue;
+                    }
+                }
+            }
+        }
     }
-    
+
     /**
      * 删除指定公告的所有通知消息
      * @param int $articleId 公告ID
@@ -590,7 +631,7 @@ class AnnouncementController extends Basic
                 'form_id' => $articleId,
                 'scene' => MessageScene::ANNOUNCEMENT['value']
             ])->select();
-            
+
             if ($messages) {
                 foreach ($messages as $message) {
                     // 删除消息内容
@@ -613,14 +654,17 @@ class AnnouncementController extends Basic
         return $this->resData($list->toArray());
     }
 
-    public function privacy(Request $request)
+
+    public function delete(Request $request)
     {
-        $builder = $this->getFormBuilder();
-        return $this->resData($builder);
-    }
-    public function user(Request $request)
-    {
-        $builder = $this->getFormBuilder();
-        return $this->resData($builder);
+        $id = $request->post('id');
+        $PluginArticle = PluginArticle::where(['id' => $id])->find();
+        if (!$PluginArticle) {
+            return $this->fail('数据不存在');
+        }
+        $PluginArticle->delete();
+        $this->clearHtml($id);
+        $this->deleteNotificationMessages($id);
+        return $this->success('删除成功');
     }
 }

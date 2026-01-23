@@ -33,6 +33,7 @@ class WechatOfficialAccount
         }
         $PluginUserWechat->uid = $params['uid'];
         $PluginUserWechat->subscribe = State::YES['value'];
+        $PluginUserWechat->channels_uid = $params['channels_uid'];
         $PluginUserWechat->save();
         Redis::set($this->EventKey . '.bind', json_encode([
             'status' => 'success',
@@ -67,6 +68,7 @@ class WechatOfficialAccount
                 $PluginUserWechat = new PluginUserWechat();
                 $PluginUserWechat->openid = $this->FromUserName;
                 $PluginUserWechat->subscribe = State::YES['value'];
+                $PluginUserWechat->channels_uid = $params['channels_uid'];
             }
             $data = [
                 'channels_uid' => $params['channels_uid'],

@@ -1176,6 +1176,7 @@ class GenerateController extends Basic
                 $PluginModelTaskResult->task_id = $PluginModelTask->id;
                 $PluginModelTaskResult->channels_uid = $request->channels_uid;
                 $PluginModelTaskResult->params = $data;
+                $PluginModelTaskResult->image_path = $first_image;
                 $PluginModelTaskResult->save();
                 Db::commit();
             } catch (\Throwable $th) {

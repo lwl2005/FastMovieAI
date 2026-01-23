@@ -74,6 +74,19 @@ class ModelController extends Basic
                 ]
             ]
         ]);
+        $builder->addHeaderAction('初始化', [
+            'model' => Action::COMFIRM['value'],
+            'path' => '/app/model/control/Model/init',
+            'props' => [
+                'title' => '初始化'
+            ],
+            'component' => [
+                'name' => 'button',
+                'props' => [
+                    'type' => 'primary'
+                ]
+            ]
+        ]);
         $formBuilder = new FormBuilder(null, null, [
             'inline' => true
         ]);
@@ -490,5 +503,148 @@ class ModelController extends Basic
             return $this->success('删除成功');
         }
         return $this->fail('删除失败');
+    }
+
+    /**
+     * 初始化数据方法
+     * 从 JSON 文件读取数据并写入数据库
+     * 
+     * @param Request $request
+     * @return \support\Response
+     */
+    public function init(Request $request)
+    {
+        // 从请求中获取 uid（channels_uid）
+        $uid = $request->channels_uid;
+        if (empty($uid)) {
+            return $this->fail('缺少渠道参数');
+        }
+
+        // JSON 文件路径（放在 plugin/model 目录下）
+        $jsonFile = base_path('plugin/model/modal.json');
+        
+        // 检查文件是否存在
+        if (!file_exists($jsonFile)) {
+            return $this->fail('初始化数据文件不存在：' . $jsonFile);
+        }
+
+        // 读取 JSON 文件内容
+        $jsonContent = file_get_contents($jsonFile);
+        if ($jsonContent === false) {
+            return $this->fail('读取初始化数据文件失败');
+        }
+
+        // 解析 JSON 数据
+        $dataList = json_decode($jsonContent, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return $this->fail('JSON 数据格式错误：' . json_last_error_msg());
+        }
+
+        // 确保是数组格式
+        if (!is_array($dataList)) {
+            return $this->fail('JSON 数据格式错误：必须是数组格式');
+        }
+
+        // 定义需要排除的字段（id 和 channels_uid）
+        $excludeFields = ['id', 'channels_uid'];
+        
+        // 定义允许的字段（除了 id 和 channels_uid 之外的所有字段）
+        $allowedFields = [
+            'name', 'icon', 'model_type', 'model_id', 'model_name',
+            'assistant_id', 'assistant_name', 'scene', 'point',
+            'state', 'sort', 'description', 'create_time', 'update_time'
+        ];
+
+        $successCount = 0;
+        $failCount = 0;
+        $skipCount = 0;
+        $errors = [];
+
+        // 遍历数据并插入数据库
+        foreach ($dataList as $index => $data) {
+            try {
+                // 过滤掉不需要的字段
+                $insertData = [];
+                foreach ($allowedFields as $field) {
+                    if (isset($data[$field])) {
+                        $insertData[$field] = $data[$field];
+                    }
+                }
+
+                // 检查必填字段
+                if (!isset($insertData['model_id']) || !isset($insertData['assistant_id']) || !isset($insertData['scene'])) {
+                    $failCount++;
+                    $errors[] = "第 " . ($index + 1) . " 条数据缺少必填字段（model_id、assistant_id、scene）";
+                    continue;
+                }
+
+                // 设置 channels_uid
+                $insertData['channels_uid'] = $uid;
+
+                // 检查是否存在相同的数据（model_id、assistant_id、scene、channels_uid）
+                $exists = PluginModel::where([
+                    'model_id' => $insertData['model_id'],
+                    'assistant_id' => $insertData['assistant_id'],
+                    'scene' => $insertData['scene'],
+                    'channels_uid' => $uid
+                ])->find();
+
+                // 如果存在相同数据，跳过
+                if ($exists) {
+                    $skipCount++;
+                    continue;
+                }
+
+                // 如果没有设置 create_time，则使用当前时间
+                if (!isset($insertData['create_time'])) {
+                    $insertData['create_time'] = date('Y-m-d H:i:s');
+                }
+
+                // 如果没有设置 update_time，则使用当前时间
+                if (!isset($insertData['update_time'])) {
+                    $insertData['update_time'] = date('Y-m-d H:i:s');
+                }
+
+                // 如果没有设置 state，则默认为 1
+                if (!isset($insertData['state'])) {
+                    $insertData['state'] = 1;
+                }
+
+                // 如果没有设置 sort，则默认为 0
+                if (!isset($insertData['sort'])) {
+                    $insertData['sort'] = 0;
+                }
+
+                // 创建模型实例并保存
+                $model = new PluginModel();
+                if ($model->save($insertData)) {
+                    $successCount++;
+                } else {
+                    $failCount++;
+                    $errors[] = "第 " . ($index + 1) . " 条数据保存失败";
+                }
+            } catch (\Exception $e) {
+                $failCount++;
+                $errors[] = "第 " . ($index + 1) . " 条数据保存失败：" . $e->getMessage();
+            }
+        }
+
+        // 返回结果
+        $message = "初始化完成，成功：{$successCount} 条";
+        if ($skipCount > 0) {
+            $message .= "，跳过：{$skipCount} 条（已存在相同数据）";
+        }
+        if ($failCount > 0) {
+            $message .= "，失败：{$failCount} 条";
+            if (!empty($errors)) {
+                $message .= "。" . implode('; ', array_slice($errors, 0, 5)); // 只显示前5个错误
+                if (count($errors) > 5) {
+                    $message .= "（还有 " . (count($errors) - 5) . " 个错误）";
+                }
+            }
+            return $this->fail($message);
+        }
+
+        return $this->success($message);
     }
 }

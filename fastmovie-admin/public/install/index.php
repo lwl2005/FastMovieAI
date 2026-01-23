@@ -171,6 +171,7 @@ function doInstall()
         $errors = 0;
 
         $pdo->beginTransaction();
+        $inTransaction = true;
 
         while ($sql = getNextSQL($fp, $prefix)) {
             try {
@@ -195,7 +196,10 @@ function doInstall()
             }
         }
 
-        $pdo->commit();
+        // 只在有活动事务时提交
+        if ($inTransaction && $pdo->inTransaction()) {
+            $pdo->commit();
+        }
         $pdo->exec("SET FOREIGN_KEY_CHECKS=1");
         $pdo->exec("SET AUTOCOMMIT=1");
         fclose($fp);

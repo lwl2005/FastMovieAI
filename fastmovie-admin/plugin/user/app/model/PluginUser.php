@@ -155,7 +155,7 @@ class PluginUser extends Basic
     {
         if (empty($model->nickname)) {
             if (!empty($model->mobile)) {
-                $model->nickname = 'XH-' . substr($model->mobile, -4);
+                $model->nickname = 'FM-' . substr($model->mobile, -4);
             } else {
                 $model->nickname = '未命名的用户';
             }
@@ -165,9 +165,9 @@ class PluginUser extends Basic
     {
         if (empty($model->nickname)) {
             if (!empty($model->mobile)) {
-                $model->nickname = 'XH-' . substr($model->mobile, -4);
+                $model->nickname = 'FM-' . substr($model->mobile, -4);
             } else {
-                $model->nickname = 'XH-' . Str::random();
+                $model->nickname = 'FM-' . Str::random();
             }
         } else {
             $model->nickname = iconv('UTF-8', 'UTF-8//IGNORE', $model->nickname);

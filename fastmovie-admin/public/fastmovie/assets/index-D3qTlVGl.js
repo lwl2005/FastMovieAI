@@ -1,0 +1,1 @@
+import{_ as t}from"./index-BH15UgwX.js";import{k as r,l as e,h as s}from"./vendor-CvgTi-PR.js";const o={},c={class:"actor-page"};function n(d,a){return s(),r("div",c,[...a[0]||(a[0]=[e("div",{class:"actor-page-header"},[e("div",{class:"actor-page-header-title"},[e("h1",null,"演员库")])],-1)])])}const _=t(o,[["render",n]]);export{_ as default};

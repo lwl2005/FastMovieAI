@@ -329,8 +329,11 @@ class UserController extends Basic
     {
         $code = $request->post('code');
         $PluginUserInvitationCode = PluginUserInvitationCode::where(['code' => $code])->find();
-        if($PluginUserInvitationCode->uid == $request->uid){
+        if($PluginUserInvitationCode->uid==$request->uid){
             return $this->fail('不能邀请自己');
+        }
+        if($PluginUserInvitationCode->uid){
+            return $this->fail('邀请码已使用');
         }
         if (!$PluginUserInvitationCode) {
             return $this->fail('邀请码不存在');
@@ -363,7 +366,7 @@ class UserController extends Basic
             return $this->fail('参数错误');
         }
         Vcode::check($username, $vcode, VcodeScene::BIND_MOBILE['value'], $token);
-        $PluginUser = PluginUser::where(['mobile' => $mobile])->find();
+        $PluginUser = PluginUser::where(['mobile' => $mobile,'channels_uid' => $request->channels_uid])->find();
         if ($PluginUser) {
             PluginUser::where(['id' => $request->uid])->update(['username' => '']);
             $wechat = PluginUserWechat::where(['uid' => $request->uid])->find();

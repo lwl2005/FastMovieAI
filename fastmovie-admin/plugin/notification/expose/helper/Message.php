@@ -90,6 +90,7 @@ class Message
             $Message->alias_id = $this->alias_id;
             $Message->extra = $this->extra;
             $Message->title = $this->title;
+            $Message->subtitle = $this->subtitle;
             $Message->effect = $this->effect;
             $Message->save();
             $MessageContent = new PluginNotificationMessageContent();

@@ -3,6 +3,7 @@
 namespace plugin\article\app\control\controller;
 
 use app\expose\build\builder\FormBuilder;
+use app\expose\enum\SubmitEvent;
 use plugin\article\app\Basic;
 use plugin\article\app\model\PluginArticle;
 use plugin\article\app\model\PluginArticleContent;
@@ -108,7 +109,7 @@ class AgreementController extends Basic
 
     protected function getFormBuilder(string $alias)
     {
-        $builder = new FormBuilder(null, null, ['size' => 'large']);
+        $builder = new FormBuilder(null, null, ['size' => 'large','submitEvent' => SubmitEvent::SILENT]);
 
         $builder->add('title', '标题', 'input', '', [
             'required' => true,
