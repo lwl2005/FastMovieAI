@@ -27,10 +27,6 @@ class ControlAuth implements MiddlewareInterface
         }
         // 鉴权检测
         try {
-            $control_config = new Config('state', 'control');
-            if (!$control_config['state']) {
-                return not_found();
-            }
             $this->Icode($request);
             $this->Authorization($request);
             $response = $next($request);
