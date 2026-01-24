@@ -23,8 +23,8 @@ class PublicController extends Basic
     protected $notNeedAuth = ['config', 'menus', 'unlock'];
     public function config(Request $request)
     {
-        $lang=$request->lang;
-        $domain=$request->app;
+        $lang = $request->lang;
+        $domain = $request->app;
         $config = Config::get('basic');
         $config = new Web($config);
         $captcha_state = Config::get('captcha', 'state');
@@ -44,26 +44,34 @@ class PublicController extends Basic
         $toolbar = new Action();
         $toolbar->add(EnumAction::LOCK['value'], [
             'icon' => 'Lock',
-            'tips'=>trans('toolbar Lock', [], $domain, $lang),
+            'tips' => trans('toolbar Lock', [], $domain, $lang),
         ]);
         $toolbar->add(EnumAction::SEARCH['value'], [
             'icon' => 'Search',
-            'tips'=>trans('toolbar Search', [], $domain, $lang),
+            'tips' => trans('toolbar Search', [], $domain, $lang),
         ]);
         $toolbar->add(EnumAction::NOTIFICATION['value'], [
             'icon' => 'Notification',
-            'tips'=>trans('toolbar Notification', [], $domain, $lang),
+            'tips' => trans('toolbar Notification', [], $domain, $lang),
         ]);
         $toolbar->add(EnumAction::FULL_SCREEN['value'], [
             'icon' => 'FullScreen',
-            'tips'=>trans('toolbar FullScreen', [], $domain, $lang),
+            'tips' => trans('toolbar FullScreen', [], $domain, $lang),
         ]);
         $toolbar->add(EnumAction::LINK['value'], [
             'icon' => 'House',
-            'tips'=>trans('toolbar House', [], $domain, $lang),
-            'props'=>[
-                'url'=>'/',
-                'target'=>'_blank'
+            'tips' => trans('toolbar House', [], $domain, $lang),
+            'props' => [
+                'url' => '/',
+                'target' => '_blank'
+            ]
+        ]);
+        $toolbar->add(EnumAction::LINK['value'], [
+            'icon' => 'ElementPlus',
+            'tips' => trans('toolbar Control', [], $domain, $lang),
+            'props' => [
+                'url' => '/control/',
+                'target' => '_blank'
             ]
         ]);
         $config->useToolbar($toolbar->toArray());

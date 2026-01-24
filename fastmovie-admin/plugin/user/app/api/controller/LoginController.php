@@ -94,6 +94,12 @@ class LoginController extends Basic
                 if ($PluginUserInvitationCode->status != 'unused') {
                     $PluginUserInvitationCode = null;
                 }
+                if($PluginUserInvitationCode->uid == $request->uid){
+                    $PluginUserInvitationCode = null;
+                }
+                if($PluginUserInvitationCode->state != State::YES['value']){
+                    $PluginUserInvitationCode = null;
+                }
             }
             $user = PluginUser::where('mobile', $username)->find();
             if (!$user) {

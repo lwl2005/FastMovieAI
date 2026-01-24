@@ -315,7 +315,7 @@ class UserController extends Basic
     {
         $PluginUserInvitationCode = PluginUserInvitationCode::where(['uid' => $request->uid])
             ->where('channels_uid', $request->channels_uid)
-            ->where('state', 1)
+            ->where('state', State::YES['value'])
             ->where('status', 'unused')
             ->select();
         return $this->resData($PluginUserInvitationCode);
@@ -329,17 +329,20 @@ class UserController extends Basic
     {
         $code = $request->post('code');
         $PluginUserInvitationCode = PluginUserInvitationCode::where(['code' => $code])->find();
-        if($PluginUserInvitationCode->uid==$request->uid){
-            return $this->fail('不能邀请自己');
-        }
-        if($PluginUserInvitationCode->uid){
-            return $this->fail('邀请码已使用');
-        }
         if (!$PluginUserInvitationCode) {
             return $this->fail('邀请码不存在');
         }
+        if($PluginUserInvitationCode->uid==$request->uid){
+            return $this->fail('不能邀请自己');
+        }
+        if(!empty($PluginUserInvitationCode->use_uid)){
+            return $this->fail('邀请码已使用');
+        }
         if ($PluginUserInvitationCode->status != 'unused') {
             return $this->fail('邀请码已使用');
+        }
+        if($PluginUserInvitationCode->state != State::YES['value']){
+            return $this->fail('邀请码已失效');
         }
         $PluginUserInvitationCode->status = 'used';
         $PluginUserInvitationCode->use_uid = $request->uid;

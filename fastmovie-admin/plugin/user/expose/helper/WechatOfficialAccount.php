@@ -53,6 +53,9 @@ class WechatOfficialAccount
                 if ($PluginUserInvitationCode->status != 'unused') {
                     $PluginUserInvitationCode = null;
                 }
+                if ($PluginUserInvitationCode->state != State::YES['value']) {
+                    $PluginUserInvitationCode = null;
+                }
             }
 
             $PluginUserWechat = PluginUserWechat::where('openid', $this->FromUserName)->find();
@@ -75,13 +78,14 @@ class WechatOfficialAccount
                 'username' => $this->FromUserName,
                 'state' => State::YES['value'],
             ];
+
             if ($PluginUserInvitationCode != null) {
                 $data['puid'] = $PluginUserInvitationCode->uid;
                 $data['activation_time'] = date('Y-m-d H:i:s');
             }
             $UserModel = new PluginUser();
             $UserModel->save($data);
-            
+
             if ($PluginUserInvitationCode != null) {
                 $PluginUserInvitationCode->status = 'used';
                 $PluginUserInvitationCode->use_uid = $UserModel->id;

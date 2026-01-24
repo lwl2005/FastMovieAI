@@ -11,6 +11,17 @@ use plugin\finance\utils\enum\PointsBillScene;
 
 class PluginUserInvitationCode extends Basic
 {
+    // 关联创建者用户
+    public function user()
+    {
+        return $this->hasOne(PluginUser::class, 'id', 'uid');
+    }
+
+    // 关联使用邀请码的用户
+    public function useUser()
+    {
+        return $this->hasOne(PluginUser::class, 'id', 'use_uid');
+    }
 
     public static function addCode($uid, $num = 1, $channels_uid = 0)
     {

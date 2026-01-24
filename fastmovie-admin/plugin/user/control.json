@@ -73,6 +73,20 @@
             "icon": "Setting",
             "path": "/app/user/control/System/register",
             "component": "form"
+        },
+        {
+            "title": "邀请码",
+            "icon": "User",
+            "path": "/app/user/control/InvitationCode/index",
+            "component": "table",
+            "children": [
+                {
+                    "title": "创建邀请码",
+                    "path": "/app/user/control/InvitationCode/create",
+                    "component": "form",
+                    "show": false
+                }
+            ]
         }
     ]
 }
