@@ -31,6 +31,7 @@
                 {
                     "title": "Notification Strategy",
                     "path": "/app/notification/admin/System/strategy",
+                    "show": false,
                     "component": "form"
                 },
                 {
@@ -41,11 +42,13 @@
                 {
                     "title": "WeChat Template",
                     "path": "/app/notification/admin/System/wechat_template",
+                    "show": false,
                     "component": "form"
                 },
                 {
                     "title": "SMS Template",
                     "path": "/app/notification/admin/System/sms_template",
+                    "show": false,
                     "component": "form"
                 }
             ]

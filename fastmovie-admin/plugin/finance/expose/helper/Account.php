@@ -456,7 +456,7 @@ class Account
             $log->num = $refund;
             $log->action = MoneyAction::INCREASE['value'];
             $log->scene = $scene;
-            $log->remarks =   "退款，原账单ID：{$bill->id}" . $remarks;
+            $log->remarks =   "退款，原账单ID：{$bill->id}，" . $remarks;
             $log->type = $bill->type;
             $log->is_sum = 0;
             if ($bill->type === 'temporary') {

@@ -8,7 +8,7 @@ return [
     [
         'title' => 'Settings_basic_web_name',
         'field' => 'web_name',
-        'value' => 'RenLoong',
+        'value' => 'FastMovie',
         'component' => 'input',
         'extra' => [
             'required' => true,
@@ -25,7 +25,7 @@ return [
     [
         'title' => '网站标题',
         'field' => 'web_title',
-        'value' => 'RenLoong',
+        'value' => 'FastMovie',
         'component' => 'input',
         'extra' => [
             'required' => true,

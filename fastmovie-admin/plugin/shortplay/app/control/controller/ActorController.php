@@ -404,7 +404,7 @@ class ActorController extends Basic
             return $this->fail('AI提示词不能为空');
         }
         $actionBuilder = new ActionBuilder();
-        $headimg = 'http://short-play.local.renloong.com/uploads/default/20251122/5b8dcf4cbec3ba58057884929194349c_69217f42205c5.jfif';
+        $headimg = 'https://' . $request->host() . '/uploads/default/20251122/5b8dcf4cbec3ba58057884929194349c_69217f42205c5.jfif';
         $actionBuilder->setData([
             'headimg' => $headimg
         ]);
@@ -418,7 +418,7 @@ class ActorController extends Basic
             return $this->fail('AI提示词不能为空');
         }
         $actionBuilder = new ActionBuilder();
-        $headimg = 'http://short-play.local.renloong.com/uploads/default/20251122/5b8dcf4cbec3ba58057884929194349c_69217f42205c5.jfif';
+        $headimg = 'https://' . $request->host() . '/uploads/default/20251122/5b8dcf4cbec3ba58057884929194349c_69217f42205c5.jfif';
         $actionBuilder->setData([
             'three_view_image' => $headimg
         ]);

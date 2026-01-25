@@ -35,6 +35,7 @@
             "title": "Settings",
             "icon": "Setting",
             "path": "/app/user/admin/Setting/basic",
+            "show": false,
             "component": "form"
         },
         {

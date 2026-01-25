@@ -15,6 +15,7 @@
             "icon": "Coupon",
             "path": "/app/marketing/admin/Coupon/index",
             "component": "table",
+            "show":false,
             "children": [
                 {
                     "title": "创建优惠券",
@@ -40,6 +41,7 @@
             "icon": "BarCode",
             "path": "/app/marketing/admin/CouponCode/index",
             "component": "table",
+            "show":false,
             "children": [
                 {
                     "title": "删除券码",

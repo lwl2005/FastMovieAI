@@ -14,6 +14,7 @@
             "title":"文章列表",
             "icon":"Notebook",
             "path":"/app/article/admin/Index/index",
+            "show": false,
             "component":"table"
         },
         {

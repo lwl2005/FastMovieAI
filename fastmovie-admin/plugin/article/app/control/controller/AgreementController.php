@@ -48,6 +48,14 @@ class AgreementController extends Basic
 
         return $this->showAgreementForm($alias);
     }
+    public function points(Request $request)
+    {
+        $alias = 'points';
+        if ($request->method() === 'POST') {
+            return $this->saveAgreement($request->post(), $alias, $request->channels_uid);
+        }
+        return $this->showAgreementForm($alias);
+    }
     public function terms(Request $request)
     {
         $alias = 'terms';

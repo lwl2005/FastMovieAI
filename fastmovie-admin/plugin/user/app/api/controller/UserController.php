@@ -32,6 +32,8 @@ class UserController extends Basic
             return $this->fail('用户不存在');
         }
         $info = PluginUser::getTokenInfo($user, $request->twofa);
+        $count=PluginUserInvitationCode::where(['uid' => $request->uid])->where('state', State::YES['value'])->where('status', 'unused')->count();
+        $info->invitation_code_count = $count;
         return $this->resData($info);
     }
     public function update(Request $request)

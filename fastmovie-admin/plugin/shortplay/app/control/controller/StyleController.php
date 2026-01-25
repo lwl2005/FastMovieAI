@@ -309,7 +309,7 @@ class StyleController extends Basic
             return $this->fail('AI提示词不能为空');
         }
         $actionBuilder = new ActionBuilder();
-        $image = 'http://short-play.local.renloong.com/uploads/default/20251122/5b8dcf4cbec3ba58057884929194349c_69217f42205c5.jfif';
+        $image = 'https://' . $request->host() . '/uploads/default/20251122/5b8dcf4cbec3ba58057884929194349c_69217f42205c5.jfif';
         $actionBuilder->setData([
             'image' => $image
         ]);

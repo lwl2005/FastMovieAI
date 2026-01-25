@@ -237,14 +237,11 @@ class InvitationCodeController extends Basic
         if ($request->method() === 'POST') {
             $D = $request->post();
             $num = isset($D['num']) ? intval($D['num']) : 1;
-            $uid = isset($D['uid']) ? intval($D['uid']) : 0;
+            // 如果不选择用户或为空，默认为0（平台创建）
+            $uid = isset($D['uid']) && $D['uid'] !== '' && $D['uid'] !== null ? intval($D['uid']) : 0;
 
             if ($num < 1 || $num > 100) {
                 return $this->fail('生成数量必须在1-100之间');
-            }
-
-            if ($uid <= 0) {
-                return $this->fail('请选择创建者用户');
             }
 
             try {
@@ -263,7 +260,6 @@ class InvitationCodeController extends Basic
 
         $Component = new ComponentBuilder;
         $builder->add('uid', '创建者', 'select', '', [
-            'required' => true,
             'remote' => [
                 'url' => '/app/user/control/User/query',
             ],
@@ -271,7 +267,10 @@ class InvitationCodeController extends Basic
                 'clearable' => true,
                 'filterable' => true,
                 'remote' => true,
-                'placeholder' => '请选择创建者用户'
+                'placeholder' => '不选择则默认为平台创建'
+            ],
+            'prompt' => [
+                $Component->add('text', ['default' => '不选择创建者则默认为平台创建（uid=0）'], ['type' => 'info', 'size' => 'small'])->builder()
             ]
         ]);
         $builder->add('num', '生成数量', 'input-number', 1, [

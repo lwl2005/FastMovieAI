@@ -127,16 +127,19 @@
                 "title": "Payment Management",
                 "icon": "Wallet",
                 "path": "Payment/group",
+                "show": false,
                 "children": [
                     {
                         "title": "Payment Settings",
                         "path": "Payment/index",
+                        "show": false,
                         "component": "payment-form"
                     },
                     {
                         "title": "Payment Template",
                         "path": "PaymentTemplate/index",
                         "component": "table",
+                        "show": false,
                         "children": [
                             {
                                 "title": "Create Payment Template",
@@ -155,60 +158,6 @@
                                 "path": "PaymentTemplate/delete",
                                 "show": false,
                                 "component": ""
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                "title": "Platform Management",
-                "icon": "Monitor",
-                "path": "Platform/index",
-                "children": [
-                    {
-                        "title": "微信",
-                        "path": "Platform/wechat",
-                        "children": [
-                            {
-                                "title": "WeChat Mini Program",
-                                "path": "Platform/wechat_miniproject",
-                                "component": "form"
-                            },
-                            {
-                                "title": "WeChat Official Account",
-                                "path": "Platform/wechat_official_account",
-                                "component": "form"
-                            },
-                            {
-                                "title": "WeChat Open Platform",
-                                "path": "Platform/wechat_open_platform",
-                                "component": "form"
-                            },
-                            {
-                                "title": "App Platform",
-                                "path": "Platform/wechat_app_platform",
-                                "component": "form"
-                            },
-                            {
-                                "title": "H5 Platform",
-                                "path": "Platform/wechat_h5_platform",
-                                "component": "form"
-                            },
-                            {
-                                "title": "PC Platform",
-                                "path": "Platform/wechat_pc_platform",
-                                "component": "form"
-                            }
-                        ]
-                    },
-                    {
-                        "title": "支付宝",
-                        "path": "Platform/alipay",
-                        "children": [
-                            {
-                                "title": "Alipay Mini Program",
-                                "path": "Platform/alipay_miniproject",
-                                "component": "form"
                             }
                         ]
                     }

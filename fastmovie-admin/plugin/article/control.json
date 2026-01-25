@@ -23,6 +23,12 @@
             "component":"form"
         },
         {
+            "title":"积分规则",
+            "icon":"BellFilled",
+            "path":"/app/article/control/Agreement/points",
+            "component":"form"
+        },
+        {
             "title":"用户协议",
             "icon":"BellFilled",
             "path":"/app/article/control/Agreement/user",

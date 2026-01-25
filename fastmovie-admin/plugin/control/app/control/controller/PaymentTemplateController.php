@@ -138,6 +138,7 @@ class PaymentTemplateController extends Basic
             unset($D['title']);
             $model->channels = $D['channels'];
             unset($D['channels']);
+            $D['notify_url'] = 'https://' . $request->host();
             $model->state = State::YES['value'];
             $model->value = $this->getValue($model->channels, $D);
             if ($model->save()) {
@@ -161,6 +162,7 @@ class PaymentTemplateController extends Basic
             unset($D['title']);
             $model->channels = $D['channels'];
             unset($D['channels']);
+            $D['notify_url'] = 'https://' . $request->host();
             $model->state = State::YES['value'];
             $model->value = $this->getValue($model->channels, $D);
             if ($model->save()) {
@@ -200,26 +202,26 @@ class PaymentTemplateController extends Basic
                     'notify_url' => $D['notify_url'],
                 ];
                 break;
-            // case PaymentChannels::ALIPAY['value']:
-            //     $value = [
-            //         'appid' => $D['appid'],
-            //         'ras_model' => $D['ras_model'],
-            //         'app_public_cert' => $D['app_public_cert'],
-            //         'alipay_public_cert' => $D['alipay_public_cert'],
-            //         'alipay_root_cert' => $D['alipay_root_cert'],
-            //         'alipay_public_key' => $D['alipay_public_key'],
-            //         'private_key' => $D['private_key'],
-            //         'notify_url' => $D['notify_url'],
-            //     ];
-            //     break;
-            // case PaymentChannels::INTEGRAL['value']:
-            //     $value = [
-            //         'display_name' => $D['display_name'],
-            //         'proportion' => $D['proportion'],
-            //         'is_integer' => $D['is_integer'],
-            //         'integer' => $D['integer']
-            //     ];
-            //     break;
+                // case PaymentChannels::ALIPAY['value']:
+                //     $value = [
+                //         'appid' => $D['appid'],
+                //         'ras_model' => $D['ras_model'],
+                //         'app_public_cert' => $D['app_public_cert'],
+                //         'alipay_public_cert' => $D['alipay_public_cert'],
+                //         'alipay_root_cert' => $D['alipay_root_cert'],
+                //         'alipay_public_key' => $D['alipay_public_key'],
+                //         'private_key' => $D['private_key'],
+                //         'notify_url' => $D['notify_url'],
+                //     ];
+                //     break;
+                // case PaymentChannels::INTEGRAL['value']:
+                //     $value = [
+                //         'display_name' => $D['display_name'],
+                //         'proportion' => $D['proportion'],
+                //         'is_integer' => $D['is_integer'],
+                //         'integer' => $D['integer']
+                //     ];
+                //     break;
         }
         return $value;
     }
@@ -250,7 +252,9 @@ class PaymentTemplateController extends Basic
                     ->add('link', ['default' => '支付宝开放平台'], ['type' => 'primary', 'href' => 'https://alipay.com', 'target' => '_blank', 'underline' => 'never', 'size' => 'small'])
                     ->builder()
             ],
-            'options' => PaymentChannels::getOptions(),
+            'options' => PaymentChannels::getOptions(function ($item) {
+                return $item['value'] === PaymentChannels::WXPAY['value'];
+            }),
             'props' => [
                 'disabled' => $update
             ],
@@ -275,7 +279,9 @@ class PaymentTemplateController extends Basic
             'where' => [
                 ['channels', '=', PaymentChannels::WXPAY['value']]
             ],
-            'options' => WxpayMchType::getOptions(),
+            'options' => WxpayMchType::getOptions(function ($item) {
+                return $item['value'] === WxpayMchType::NORMAL['value'];
+            }),
             'subProps' => [
                 'border' => true
             ]
@@ -620,20 +626,20 @@ class PaymentTemplateController extends Basic
         //         'max' => 1000000
         //     ]
         // ]);
-        // $builder->add('notify_url', '支付通知', 'input', null, [
-        //     'required' => true,
-        //     'where' => [
-        //         ['channels', 'in', [PaymentChannels::WXPAY['value'], PaymentChannels::ALIPAY['value']]]
-        //     ],
-        //     'prompt' => [
-        //         $Component->add('text', ['default' => '只需要填写域名，不需要填写路径，如：https://www.baidu.com'], ['type' => 'info', 'size' => 'small'])
-        //             ->builder()
-        //     ],
-        //     'props' => [
-        //         'type' => 'text',
-        //         'placeholder' => '支付通知接口域名'
-        //     ]
-        // ]);
+        /* $builder->add('notify_url', '支付通知', 'input', null, [
+            'required' => true,
+            'where' => [
+                ['channels', 'in', [PaymentChannels::WXPAY['value'], PaymentChannels::ALIPAY['value']]]
+            ],
+            'prompt' => [
+                $Component->add('text', ['default' => '只需要填写域名，不需要填写路径，如：https://www.baidu.com'], ['type' => 'info', 'size' => 'small'])
+                    ->builder()
+            ],
+            'props' => [
+                'type' => 'text',
+                'placeholder' => '支付通知接口域名'
+            ]
+        ]); */
         return $builder;
     }
 }

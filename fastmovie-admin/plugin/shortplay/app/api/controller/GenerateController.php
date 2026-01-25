@@ -69,7 +69,7 @@ class GenerateController extends Basic
             'form_data' => [
                 'images' => $images,
                 'prompt' => implode(";\n", $prompts) . ";\n",
-                'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/draw',
+                'notify_url' => 'https://' . $request->host() . '/app/model/Notify/draw',
                 'aspect_ratio' => '2:3'
             ]
         ];
@@ -600,7 +600,7 @@ class GenerateController extends Basic
                 'assistant' => $PluginModel->assistant_id,
                 'model' => $PluginModel->model_id,
                 'form_data' => array_merge($item, [
-                    'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/draw'
+                    'notify_url' => 'https://' . $request->host() . '/app/model/Notify/draw'
                 ])
             ];
             Db::startTrans();
@@ -721,7 +721,7 @@ class GenerateController extends Basic
             'form_data' => [
                 'images' => $images,
                 'prompt' => $prompt,
-                'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/draw',
+                'notify_url' => 'https://' . $request->host() . '/app/model/Notify/draw',
                 'aspect_ratio' => $PluginShortplayDrama->aspect_ratio
             ]
         ];
@@ -861,7 +861,7 @@ class GenerateController extends Basic
                 'costume' => $PluginShortplayCharacterLook->costume,
                 'style' => $style,
                 'aspect_ratio' => '1:1',
-                'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/draw'
+                'notify_url' => 'https://' . $request->host() . '/app/model/Notify/draw'
             ]
         ];
         Db::startTrans();
@@ -964,6 +964,7 @@ class GenerateController extends Basic
             'three_view_model_model_id' => $ThreeViewPluginModel->model_id,
             'three_view_assistant_id' => $ThreeViewPluginModel->assistant_id,
             'character_look_id' => $PluginShortplayCharacterLook->id,
+            'host' => $request->host(),
         ];
         $data = [
             'assistant' => $PluginModel->assistant_id,
@@ -979,7 +980,7 @@ class GenerateController extends Basic
                 'hair_style' => $PluginShortplayCharacterLook->hair_style,
                 'costume' => $PluginShortplayCharacterLook->costume,
                 'aspect_ratio' => '1:1',
-                'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/draw',
+                'notify_url' => 'https://' . $ids['host'] . '/app/model/Notify/draw',
                 'images' => [$PluginShortplayActor->headimg, $PluginShortplayActor->three_view_image, $PluginShortplayCharacterLook->costume_url]
             ]
         ];
@@ -1040,7 +1041,7 @@ class GenerateController extends Basic
                         'form_data' => [
                             'images' => [],
                             'aspect_ratio' => '1:1',
-                            'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/draw'
+                            'notify_url' => 'https://' . $ids['host'] . '/app/model/Notify/draw'
                         ]
                     ];
                     $task = new PluginModelTask();
@@ -1144,7 +1145,7 @@ class GenerateController extends Basic
                 'first_image' => $first_image,
                 'last_image' => $last_image,
                 'duration' => $duration,
-                'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/video',
+                'notify_url' => 'https://' . $request->host() . '/app/model/Notify/video',
                 'aspect_ratio' => $PluginShortplayDrama->aspect_ratio
             ]
         ];
@@ -1303,7 +1304,7 @@ class GenerateController extends Basic
                 'volume' => $volume,
                 'speed' => $speed,
                 'language' => [$language],
-                'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/audio',
+                'notify_url' => 'https://' . $request->host() . '/app/model/Notify/audio',
             ]
         ];
         Db::startTrans();
@@ -1424,7 +1425,7 @@ class GenerateController extends Basic
                 'volume' => $volume,
                 'speed' => $speed,
                 'language' => [$language],
-                'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/audio',
+                'notify_url' => 'https://' . $request->host() . '/app/model/Notify/audio',
             ]
         ];
         Db::startTrans();

@@ -30,9 +30,9 @@ class PaymentController extends Basic
                 case Platform::PC['value']:
                     $channels = [
                         PaymentChannels::WXPAY,
-                        PaymentChannels::ALIPAY,
-                        PaymentChannels::BALANCE,
-                        PaymentChannels::INTEGRAL
+                        // PaymentChannels::ALIPAY,
+                        // PaymentChannels::BALANCE,
+                        // PaymentChannels::INTEGRAL
                     ];
                     break;
                 case Platform::H5['value']:

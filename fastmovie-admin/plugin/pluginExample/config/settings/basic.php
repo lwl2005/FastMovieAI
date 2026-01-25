@@ -10,7 +10,7 @@ return [
         #配置项字段
         'field' => 'web_name',
         #配置项值
-        'value' => 'RenLoong',
+        'value' => 'FastMovie',
         #配置项组件
         'component' => 'input',
         #配置项额外属性

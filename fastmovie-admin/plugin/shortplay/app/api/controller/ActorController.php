@@ -309,7 +309,7 @@ class ActorController extends Basic
                         'gender'     => ActorGender::getText($PluginShortplayActor->gender),
                         'age'        => ActorAge::getText($PluginShortplayActor->age),
                         'aspect_ratio' => '1:1',
-                        'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/draw'
+                        'notify_url' => 'https://' . $request->host() . '/app/model/Notify/draw'
                     ]
                 ];
                 if ($image_reference_state) {
@@ -383,7 +383,7 @@ class ActorController extends Basic
                         'gender'     => ActorGender::getText($PluginShortplayActor->gender),
                         'age'        => ActorAge::getText($PluginShortplayActor->age),
                         'aspect_ratio' => '1:1',
-                        'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/draw'
+                        'notify_url' => 'https://' . $request->host() . '/app/model/Notify/draw'
                     ]
                 ];
 

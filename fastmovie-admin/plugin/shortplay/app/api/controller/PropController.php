@@ -184,7 +184,7 @@ class PropController extends Basic
                     'form_data' => [
                         'prompt'     => $PluginShortplayProp->description,
                         'aspect_ratio' => '1:1',
-                        'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/draw'
+                        'notify_url' => 'https://' . $request->host() . '/app/model/Notify/draw'
                     ]
                 ];
                 if ($image_reference_state) {
@@ -255,7 +255,7 @@ class PropController extends Basic
                     'form_data' => [
                         'prompt'     => $PluginShortplayProp->description,
                         'aspect_ratio' => '1:1',
-                        'notify_url' => 'http://short-play.local.renloong.com/app/model/Notify/draw'
+                        'notify_url' => 'https://' . $request->host() . '/app/model/Notify/draw'
                     ]
                 ];
 

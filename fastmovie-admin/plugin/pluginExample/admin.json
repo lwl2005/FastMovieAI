@@ -3,30 +3,36 @@
     "icon": "Operation",
     "path": "/app/pluginExample/admin",
     "sort": 3999,
+    "show": false,
     "children": [
         {
             "title": "大屏",
             "path": "/app/pluginExample/admin/Databoard/index",
+            "show": false,
             "component": "databoard"
         },
         {
             "title": "表单",
             "path": "/app/pluginExample/admin/Form/index",
+            "show": false,
             "component": "form"
         },
         {
             "title": "分组表单",
             "path": "/app/pluginExample/admin/GroupForm/index",
+            "show": false,
             "component": "form"
         },
         {
             "title": "审核表单",
             "path": "/app/pluginExample/admin/Examine/index",
+            "show": false,
             "component": "examine"
         },
         {
             "title": "表格",
             "path": "/app/pluginExample/admin/Table/index",
+            "show": false,
             "component": "table"
         },
         {
@@ -37,11 +43,13 @@
         {
             "title": "信息展示",
             "path": "/app/pluginExample/admin/Info/index",
+            "show": false,
             "component": "info"
         },
         {
             "title": "配置",
             "path": "/app/pluginExample/admin/Settings/basic",
+            "show": false,
             "component": "form"
         }
     ]

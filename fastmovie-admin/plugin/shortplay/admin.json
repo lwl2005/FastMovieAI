@@ -91,7 +91,8 @@
             "title": "Settings",
             "icon": "Setting",
             "path": "/app/shortplay/admin/Setting/basic",
-            "component": "form"
+            "component": "form",
+            "show": false
         }
     ]
 }

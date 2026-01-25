@@ -14,7 +14,8 @@ use support\Log;
 class Client
 {
     protected $token;
-    protected $domain = 'https://api.yidevs.com';
+    // protected $domain = 'https://api.yidevs.com';
+    protected $domain = 'http://110.42.56.227:36999';
     protected $HttpClient;
     protected $channels_uid;
     public function __construct()
