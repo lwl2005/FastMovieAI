@@ -45,7 +45,7 @@ class GenerateController extends Basic
     public function dramaCover(Request $request)
     {
         $id = $request->post('id');
-        $PluginShortplayDrama = PluginShortplayDrama::where(['id' => $id, 'uid' => $request->uid])->find();
+        $PluginShortplayDrama = PluginShortplayDrama::where(['id' => $id, 'uid' => $request->uid])->with('style')->find();
         if (!$PluginShortplayDrama) {
             return $this->fail('短剧不存在');
         }
@@ -62,13 +62,13 @@ class GenerateController extends Basic
         $prompts = [];
         $prompts[] = '剧名：' . $PluginShortplayDrama->title;
         $prompts[] = '简介：' . $PluginShortplayDrama->description;
-        $prompts[] = '画风：' . $PluginShortplayDrama->style->prompts;
         $data = [
             'assistant' => $PluginModel->assistant_id,
             'model' => $PluginModel->model_id,
             'form_data' => [
                 'images' => $images,
                 'prompt' => implode(";\n", $prompts) . ";\n",
+                'style' => $PluginShortplayDrama->style->prompts,
                 'notify_url' => 'https://' . $request->host() . '/app/model/Notify/draw',
                 'aspect_ratio' => '2:3'
             ]
@@ -76,7 +76,7 @@ class GenerateController extends Basic
 
         Db::startTrans();
         try {
-            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'],null,'生成封面', true);
+            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'], null, '生成封面', true);
             Db::commit();
         } catch (\Throwable $th) {
             Db::rollback();
@@ -207,7 +207,7 @@ class GenerateController extends Basic
                 $PluginModelTask->expectation_execution_count = $PluginShortplayDrama->episode_sum - $PluginShortplayDrama->episode_num;
             }
             $PluginModelTask->last_heartbeat = date('Y-m-d H:i:s', strtotime('+10 seconds'));
-            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point * $PluginModelTask->expectation_execution_count, PointsBillScene::CONSUME['value'],null,'续写分集', true);
+            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point * $PluginModelTask->expectation_execution_count, PointsBillScene::CONSUME['value'], null, '续写分集', true);
             $PluginModelTask->consume_ids = $consume_ids;
             $PluginModelTask->save();
             $PluginModelTaskResult = new PluginModelTaskResult();
@@ -292,7 +292,7 @@ class GenerateController extends Basic
                 $PluginModelTaskResult->channels_uid = $request->channels_uid;
                 $PluginModelTaskResult->params = $data;
                 $PluginModelTaskResult->save();
-                $consume_ids = Account::decPoints($PluginModelTask->uid, $PluginModelTask->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'],null,'生成场景', true);
+                $consume_ids = Account::decPoints($PluginModelTask->uid, $PluginModelTask->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'], null, '生成场景', true);
                 $data['consume_ids'] = $consume_ids;
                 Db::commit();
             } catch (\Throwable $th) {
@@ -485,7 +485,7 @@ class GenerateController extends Basic
             $PluginModelTask->execution_count = 0;
             $PluginModelTask->expectation_execution_count = PluginShortplayDramaStoryboard::where(['drama_id' => $PluginShortplayDrama->id, 'episode_id' => $PluginShortplayDramaEpisode->id])->order('sort asc')->count();
             $PluginModelTask->last_heartbeat = date('Y-m-d H:i:s', strtotime('+10 seconds'));
-            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point * $PluginModelTask->expectation_execution_count, PointsBillScene::CONSUME['value'],null,'生成分镜', true);
+            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point * $PluginModelTask->expectation_execution_count, PointsBillScene::CONSUME['value'], null, '生成分镜', true);
             $PluginModelTask->consume_ids = $consume_ids;
             $PluginModelTask->save();
             $PluginModelTaskResult = new PluginModelTaskResult();
@@ -605,7 +605,7 @@ class GenerateController extends Basic
             ];
             Db::startTrans();
             try {
-                $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'],null,'生成场景图片', true);
+                $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'], null, '生成场景图片', true);
                 Db::commit();
             } catch (\Throwable $th) {
                 Db::rollback();
@@ -656,7 +656,7 @@ class GenerateController extends Basic
     public function storyboardImage(Request $request)
     {
         $drama_id = $request->post('drama_id');
-        $PluginShortplayDrama = PluginShortplayDrama::where(['id' => $drama_id, 'uid' => $request->uid])->find();
+        $PluginShortplayDrama = PluginShortplayDrama::where(['id' => $drama_id, 'uid' => $request->uid])->with('style')->find();
         if (!$PluginShortplayDrama) {
             return $this->fail('短剧不存在');
         }
@@ -721,13 +721,14 @@ class GenerateController extends Basic
             'form_data' => [
                 'images' => $images,
                 'prompt' => $prompt,
+                'style' => $PluginShortplayDrama->style->prompts,
                 'notify_url' => 'https://' . $request->host() . '/app/model/Notify/draw',
                 'aspect_ratio' => $PluginShortplayDrama->aspect_ratio
             ]
         ];
         Db::startTrans();
         try {
-            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'],null,'生成分镜图片', true);
+            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'], null, '生成分镜图片', true);
             Db::commit();
         } catch (\Throwable $th) {
             Db::rollback();
@@ -866,7 +867,7 @@ class GenerateController extends Basic
         ];
         Db::startTrans();
         try {
-            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'],null,'生成角色换装', true);
+            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'], null, '生成角色换装', true);
             Db::commit();
         } catch (\Throwable $th) {
             Db::rollback();
@@ -915,7 +916,7 @@ class GenerateController extends Basic
     public function characterLook(Request $request)
     {
         $drama_id = $request->post('drama_id');
-        $PluginShortplayDrama = PluginShortplayDrama::where(['id' => $drama_id, 'uid' => $request->uid])->find();
+        $PluginShortplayDrama = PluginShortplayDrama::where(['id' => $drama_id, 'uid' => $request->uid])->with('style')->find();
         if (!$PluginShortplayDrama) {
             return $this->fail('短剧不存在');
         }
@@ -979,6 +980,7 @@ class GenerateController extends Basic
                 'makeup' => $PluginShortplayCharacterLook->makeup,
                 'hair_style' => $PluginShortplayCharacterLook->hair_style,
                 'costume' => $PluginShortplayCharacterLook->costume,
+                'style' => $PluginShortplayDrama->style->prompts,
                 'aspect_ratio' => '1:1',
                 'notify_url' => 'https://' . $ids['host'] . '/app/model/Notify/draw',
                 'images' => [$PluginShortplayActor->headimg, $PluginShortplayActor->three_view_image, $PluginShortplayCharacterLook->costume_url]
@@ -986,8 +988,8 @@ class GenerateController extends Basic
         ];
         Db::startTrans();
         try {
-            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'],null,'生成角色换装', true);
-            $three_view_consume_ids = Account::decPoints($request->uid, $request->channels_uid, $ThreeViewPluginModel->point, PointsBillScene::CONSUME['value'],null,'生成角色换装三视图', true);
+            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'], null, '生成角色换装', true);
+            $three_view_consume_ids = Account::decPoints($request->uid, $request->channels_uid, $ThreeViewPluginModel->point, PointsBillScene::CONSUME['value'], null, '生成角色换装三视图', true);
             Db::commit();
         } catch (\Throwable $th) {
             Db::rollback();
@@ -1041,6 +1043,7 @@ class GenerateController extends Basic
                         'form_data' => [
                             'images' => [],
                             'aspect_ratio' => '1:1',
+                            'style' => $data['form_data']['style'],
                             'notify_url' => 'https://' . $ids['host'] . '/app/model/Notify/draw'
                         ]
                     ];
@@ -1151,7 +1154,7 @@ class GenerateController extends Basic
         ];
         Db::startTrans();
         try {
-            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'],null,'生成分镜视频', true);
+            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'], null, '生成分镜视频', true);
             Db::commit();
         } catch (\Throwable $th) {
             Db::rollback();
@@ -1309,7 +1312,7 @@ class GenerateController extends Basic
         ];
         Db::startTrans();
         try {
-            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'],null,'生成台词语音', true);
+            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'], null, '生成台词语音', true);
             Db::commit();
         } catch (\Throwable $th) {
             Db::rollback();
@@ -1430,7 +1433,7 @@ class GenerateController extends Basic
         ];
         Db::startTrans();
         try {
-            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'],null,'生成分镜旁白语音', true);
+            $consume_ids = Account::decPoints($request->uid, $request->channels_uid, $PluginModel->point, PointsBillScene::CONSUME['value'], null, '生成分镜旁白语音', true);
             Db::commit();
         } catch (\Throwable $th) {
             Db::rollback();

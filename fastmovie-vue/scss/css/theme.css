@@ -46,12 +46,12 @@ html[data-theme="dark"] {
   --el-box-shadow-light: 0px 0px 12px rgba(0, 0, 0, .72);
   --el-box-shadow-lighter: 0px 0px 6px rgba(0, 0, 0, .72);
   --el-box-shadow-dark: 0px 16px 48px 16px rgba(0, 0, 0, .72), 0px 12px 32px #000000, 0px 8px 16px -8px #000000;
-  --el-bg-color-page: #0a0a0a;
-  --el-bg-color: #141414;
+  --el-bg-color-page: #1E1E1E;
+  --el-bg-color: #0C0C0D;
   --el-bg-color-rgb-r: 10;
   --el-bg-color-rgb-g: 10;
   --el-bg-color-rgb-b: 10;
-  --el-bg-color-overlay: #1d1e1f;
+  --el-bg-color-overlay: #171717;
   --el-text-color-primary: #E5EAF3;
   --el-text-color-regular: #CFD3DC;
   --el-text-color-secondary: #A3A6AD;

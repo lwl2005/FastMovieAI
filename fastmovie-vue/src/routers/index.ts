@@ -4,6 +4,8 @@ import { $http } from "@/common/http";
 import { useRefs, useUserStore, useWebConfigStore } from "@/stores";
 import { createRouter, createWebHashHistory } from "vue-router";
 import { useLogin } from "@/composables/useLogin";
+import { ElMessageBox } from "element-plus";
+import { useStorage } from "@/composables/useStorage";
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
@@ -250,7 +252,64 @@ const getWebConfig = () => {
         });
     })
 }
-router.beforeEach(async (to, _from, next) => {
+
+// 验证邀请码是否被使用
+const checkInvitationCode = async (code: string): Promise<boolean> => {
+    try {
+        const res: any = await $http.get(`/app/user/api/User/checkInvitationCode?code=${code}`);
+        // 如果接口返回成功，说明邀请码可用（未被使用）
+        if (res.code === ResponseCode.SUCCESS) {
+            return true;
+        } else {
+            // 接口返回失败，说明邀请码已被使用或无效
+            return false;
+        }
+    } catch (error: any) {
+        // 如果接口返回错误，说明邀请码已被使用或无效
+        const errorMsg = error?.response?.data?.msg || error?.msg || '邀请码验证失败';
+        // 如果错误信息明确表示邀请码已被使用或无效，返回 false
+        if (errorMsg.includes('已被使用') || errorMsg.includes('无效') || errorMsg.includes('不存在')) {
+            return false;
+        }
+        // 其他错误也视为验证失败
+        return false;
+    }
+}
+
+// 处理邀请码验证（只在第一次访问或刷新时验证）
+const handleInvitationCode = async (to: any, from: any) => {
+    const storage = useStorage();
+    // 判断是否是第一次访问或刷新（from.name 为 null 或 undefined 表示刷新或首次访问）
+    const isFirstVisit = from.name === null || from.name === undefined;
+
+    // 只在首次访问或刷新时验证，且 URL 中有 code 参数
+    if (isFirstVisit && to.query.code) {
+        const code = to.query.code as string;
+        // 验证邀请码是否被使用
+        try {
+            const isValid = await checkInvitationCode(code);
+            if (isValid) {
+                // 邀请码有效，存入缓存
+                storage.set('ICODE', code);
+            } else {
+                // 邀请码已被使用或无效，提示用户
+                ElMessageBox({
+                    title: '温馨提示',
+                    message: '邀请码无效或已被使用',
+                    type: 'warning',
+                });
+            }
+        } catch (error) {
+            // 验证失败，提示用户
+            ElMessageBox({
+                title: '温馨提示',
+                message: '邀请码验证失败',
+                type: 'error',
+            });
+        }
+    }
+}
+router.beforeEach(async (to, from, next) => {
     const webConfigStore = useWebConfigStore();
     const { WEBCONFIG } = useRefs(webConfigStore);
     webConfigStore.initWebConfig();
@@ -261,6 +320,10 @@ router.beforeEach(async (to, _from, next) => {
             console.error('初始化网站配置失败');
         });
     }
+
+    // 处理邀请码验证（只在第一次访问或刷新时验证）
+    await handleInvitationCode(to, from);
+
     const userStore = useUserStore();
     userStore.initUserInfo();
     const { USERINFO } = useRefs(userStore);

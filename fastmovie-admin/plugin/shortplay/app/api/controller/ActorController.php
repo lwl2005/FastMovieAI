@@ -619,4 +619,14 @@ class ActorController extends Basic
         }
         return $this->success('更新成功');
     }
+    public function delete(Request $request)
+    {
+        $id = $request->post('id');
+        $PluginShortplayActor = PluginShortplayActor::where(['id' => $id, 'uid' => $request->uid])->whereNull('drama_id')->find();
+        if (!$PluginShortplayActor) {
+            return $this->fail('演员不存在');
+        }
+        $PluginShortplayActor->delete();
+        return $this->success('删除成功');
+    }
 }

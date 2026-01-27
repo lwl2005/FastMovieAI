@@ -23,6 +23,7 @@ class PublicController extends Basic
     public function config(Request $request)
     {
         $config = new Config('basic', 'control');
+        $register = new Config('register', 'user', $request->channels_uid);
         $config->enum = [
             'actor_species_type' => ActorSpeciesType::getOptions(),
             'actor_gender' => ActorGender::getOptions(),
@@ -40,6 +41,7 @@ class PublicController extends Basic
                 'auth' => config('plugin.webman.push.app.auth'),
             ];
         }
+        $config->register = $register->toArray();
         return $this->resData($config);
     }
     public function getSmsVcode(Request $request)

@@ -13,6 +13,7 @@ const pathSrc = path.resolve(__dirname, './src')
 export default defineConfig((ConfigEnv: ConfigEnv) => {
   const env = loadEnv(ConfigEnv.mode, process.cwd())
   return {
+    base: '/fastmovie/',
     resolve: {
       alias: {
         '@': pathSrc,
@@ -72,18 +73,18 @@ export default defineConfig((ConfigEnv: ConfigEnv) => {
       }),
       Inspect()
     ],
-		server: {
-			open: true,
-			port: 36310,
+    server: {
+      open: true,
+      port: 36310,
       allowedHosts: true,
-			// 接口代理（解决跨域）
-			proxy: {
-				"/local": {
-					target: env.VITE_REQUEST_BASE_URL,
-					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/local/, ""),
-				}
-			},
-		},
+      // 接口代理（解决跨域）
+      proxy: {
+        "/local": {
+          target: env.VITE_REQUEST_BASE_URL,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/local/, ""),
+        }
+      },
+    },
   }
 })

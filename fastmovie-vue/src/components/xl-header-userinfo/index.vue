@@ -2,7 +2,7 @@
 import { truncate } from '@/common/functions';
 import { useLogin } from '@/composables/useLogin';
 import { useRefs, useUserStore } from '@/stores';
-import LanguageSvg from '@/svg/icon/language.vue';
+// import LanguageSvg from '@/svg/icon/language.vue';
 import router from '@/routers';
 
 const login = useLogin();
@@ -53,9 +53,9 @@ const xlInvitationCodeRef = ref<any>(null);
                         <Present />
                     </el-icon>
                     <span class="h8">邀请好友</span>
-                    <div class="num">1</div>
+                    <div class="num">{{ USERINFO?.invitation_code_count || 0 }}</div>
                 </div>
-                <div class="flex flex-y-center grid-gap-2 mt-8">
+                <!-- <div class="flex flex-y-center grid-gap-2 mt-8">
                     <el-icon color="#fff" size="20">
                         <LanguageSvg />
                     </el-icon>
@@ -65,7 +65,7 @@ const xlInvitationCodeRef = ref<any>(null);
                     <el-icon color="#B5B5B5">
                         <CaretBottom />
                     </el-icon>
-                </div>
+                </div> -->
                 <div class="flex flex-y-center grid-gap-2 mt-8 pointer"
                     @click="userinfoPopoverRef.hide(); xlUserinfoRef.open()">
                     <el-icon color="#fff" size="20">

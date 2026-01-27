@@ -185,7 +185,7 @@ const handleUploadReferenceImageError = () => {
 }
 const replaceSceneLoading = ref(false);
 const handleReplaceScene = (item: any) => {
-    if (replaceSceneLoading.value) return;
+    if (replaceSceneLoading.value || item.status !== 'success') return;
     replaceSceneLoading.value = true;
     $http.post('/app/shortplay/api/Scene/update', {
         id: currentScene.value.id,
@@ -365,7 +365,7 @@ onUnmounted(() => {
                     <span>{{ currentScene?.title }}</span>
                     <span class="text-success">场景{{ currentScene?.id }}</span>
                 </div>
-                <el-avatar :src="currentScene?.image_state ? '' : currentScene?.image" fit="contain" class="preview-image"
+                <el-avatar :src="currentScene?.image_state ? '' : currentScene?.image" fit="contain" class="preview-image bg-mosaic"
                     shape="square">
                     <div v-if="currentScene?.image_state" class="flex flex-center flex-column grid-gap-2 text-info">
                         <el-icon size="64">
@@ -412,7 +412,7 @@ onUnmounted(() => {
                                         </template>
                                     </el-popconfirm>
                                 </div>
-                                <el-avatar class="montage-storyboard-list-item-image" :src="item.image" fit="contain"
+                                <el-avatar class="montage-storyboard-list-item-image bg-mosaic" :src="item.image" :fit="['9:16','16:9'].includes(dramaInfo.aspect_ratio) ? 'contain' : 'cover'"
                                     v-loading="(item.image_state && item.image)" element-loading-text="图片生成中...">
                                     <div class="flex flex-column grid-gap-1 flex-center">
                                         <div class="flex">
@@ -548,7 +548,7 @@ onUnmounted(() => {
                                 <el-avatar :src="item.result.image_path" fit="contain" shape="square" :size="206">
                                 </el-avatar>
                                 <div class="flex flex-center grid-gap-2 task-item-replace pointer"
-                                    v-if="item.result.image_path !== currentSceneForm.image"
+                                    v-if="item.status==='success'&&item.result.image_path !== currentSceneForm.image"
                                     @click="handleReplaceScene(item)">
                                     <el-icon>
                                         <Loading class="circular" v-if="replaceSceneLoading" />
@@ -784,10 +784,10 @@ onUnmounted(() => {
 }
 
 .montage-storyboard {
-    --montage-storyboard-height: 240px;
-    --montage-storyboard-toolbar-height: 80px;
+    --montage-storyboard-height: 187px;
+    --montage-storyboard-toolbar-height: 27px;
     height: var(--montage-storyboard-height);
-    background: var(--el-bg-color-overlay);
+    background: var(--el-bg-color-page);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -819,9 +819,9 @@ onUnmounted(() => {
 
     &-list-item {
         flex-shrink: 0;
-        width: calc(calc(var(--montage-storyboard-height) - var(--montage-storyboard-toolbar-height) - 10px) / 0.7);
+        width: calc((var(--montage-storyboard-height) - var(--montage-storyboard-toolbar-height) - 10px) / 0.7);
         height: 100%;
-        background: var(--el-bg-color-page);
+        background: var(--el-bg-color-overlay);
         box-shadow: inset 0 0 0 2px transparent;
         display: flex;
         flex-direction: column;
@@ -865,12 +865,6 @@ onUnmounted(() => {
             width: 100%;
             height: 100%;
             border-radius: 4px;
-            background: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%),
-                linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.15) 75%),
-                linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.15) 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
         .button {

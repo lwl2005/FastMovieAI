@@ -33,7 +33,7 @@
         </div>
         <template #footer>
             <div class="flex flex-x-center grid-gap-6">
-                <div class="flex-1 text-success flex flex-y-center grid-gap-2">
+                <div class="flex-1 text-success flex flex-y-center grid-gap-2 pointer" @click="router.push('/article/points')">
                     <el-icon :size="18">
                         <Warning />
                     </el-icon>

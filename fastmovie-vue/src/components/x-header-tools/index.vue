@@ -11,6 +11,8 @@ import { throttle } from '@/common/functions';
 import { $http } from '@/common/http';
 import { ResponseCode } from '@/common/const';
 import IconVipSvg from '@/svg/icon/icon-vip.vue';
+import { useLogin } from '@/composables/useLogin'
+const login = useLogin()
 const props = withDefaults(defineProps<{
     showMenu?: any[]
 }>(), {
@@ -62,6 +64,14 @@ const xlUserPointsRef = ref<any>(null);
 const openWechatGroupDialog = () => {
     wechatGroupDialogVisible.value = true;
 };
+//跳转vip
+const toVip = () => {
+    if (USERINFO.value) {
+        router.push('/vip');
+        return;
+    }
+    login.open();
+}
 //跳转链接
 const toUse = () => {
     const url = WEBCONFIG.value.guide_url
@@ -95,7 +105,7 @@ onUnmounted(() => {
             <el-divider direction="vertical" />
             <span class="h10" @click.stop="$router.push('/points')">充值</span>
         </div>
-        <div class="x-header-tool" v-if="showMenu?.includes('vip')" @click="router.push('/vip')">
+        <div class="x-header-tool" v-if="showMenu?.includes('vip')" @click="toVip">
                 <el-icon :size="26" class="x-header-tool-img">
                     <IconVipSvg />
                 </el-icon>
@@ -116,7 +126,7 @@ onUnmounted(() => {
     </div>
 
     <!-- 微信群二维码对话框 -->
-    <el-dialog v-model="wechatGroupDialogVisible" title="加入微信群" width="512px" align-center>
+    <el-dialog v-model="wechatGroupDialogVisible" title="加入官方微信群" width="512px" align-center>
         <div class="flex flex-column flex-y-center grid-gap-4 py-8" v-if="WEBCONFIG?.wechat_group_qrcode_url">
             <el-image :src="WEBCONFIG.wechat_group_qrcode_url" style="width: 230px; height: 230px;" fit="contain"
                 :preview-src-list="[WEBCONFIG.wechat_group_qrcode_url]" preview-teleported />

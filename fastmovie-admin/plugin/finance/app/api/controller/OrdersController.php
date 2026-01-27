@@ -296,6 +296,6 @@ class OrdersController extends Basic
         if (!$order) {
             return $this->fail('订单不存在');
         }
-        return $this->resData(['status' => $order->state == OrdersState::PAID['value'] ? true : false]);
+        return $this->resData(['status' => in_array($order->state, [OrdersState::PAID['value'], OrdersState::FINISH['value']])]);
     }
 }

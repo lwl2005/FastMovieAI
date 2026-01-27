@@ -5,7 +5,7 @@
         </template>
         <div class="flex flex-center flex-column" v-if="list.length > 0">
             <div class="h8">您还剩 {{ list.length }} 个邀请名额，拥有下方邀请码的任何人都可以加入</div>
-            <div class="h8 mt-5">好友成功注册可得 100 积分</div>
+            <div class="h8 mt-5">好友成功注册可得 {{ WEBCONFIG?.register.invite_reward_points || 0 }} 积分</div>
             <div class="grid-columns-6 grid-gap-6 mt-10">
                 <div v-for="(i, index) in code" :key="index" class="flex flex-center flex-column item">
                     {{ i }}
@@ -37,6 +37,10 @@
 <script setup lang="ts">
 import { $http } from '@/common/http';
 import { ResponseCode } from '@/common/const';
+import { ElMessage } from 'element-plus';
+import { useRefs, useWebConfigStore } from '@/stores';
+const webConfigStore = useWebConfigStore();
+const { WEBCONFIG } = useRefs(webConfigStore);
 const visible = ref(false);
 const list = ref<any>([])
 const getList = () => {
@@ -75,12 +79,15 @@ const copyCode = async () => {
         ElMessage.warning('暂无可复制内容')
         return
     }
-    const text = code.value.join('')
+    const codeStr = code.value.join('')
+    // 获取当前域名并构建完整链接
+    const origin = window.location.origin
+    const url = `${origin}/fastmovie/#/?code=${codeStr}`
     try {
         if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(text)
+            await navigator.clipboard.writeText(url)
         } else {
-            fallbackCopy(text)
+            fallbackCopy(url)
         }
         ElMessage.success('复制成功')
     } catch (err) {

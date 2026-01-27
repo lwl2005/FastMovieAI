@@ -280,7 +280,7 @@ defineExpose({
                                 class="actor-form-input bg-overlay" />
                         </el-form-item>
                         <el-form-item label="演员音色" prop="title" class="grid-column-3">
-                            <el-button text bg @click="voiceDialogRef?.open?.({ actor: actorForm })">
+                            <el-button text bg @click="voiceDialogRef?.open?.({ modelScene:'dialogue_voice',actor: actorForm })">
                                 <span v-if="actorForm.voice_name">音色:{{ actorForm.voice_name }}</span>
                                 <span v-else>点击选择音色</span>
                             </el-button>

@@ -2,12 +2,14 @@
 import { ResponseCode } from '@/common/const';
 import { $http } from '@/common/http';
 import { useVcode } from '@/composables/useVcode';
-import { useUserStore } from '@/stores';
+import { useUserStore, useWebConfigStore, useRefs } from '@/stores';
 import { ElMessage } from 'element-plus';
 import IconLoginPhoneSvg from '@/svg/icon/icon-login-phone.vue';
 import IconLoginWechatSvg from '@/svg/icon/icon-login-wechat.vue';
 import IconSecuritySvg from '@/svg/icon/icon-security.vue';
 const userStore = useUserStore()
+const webConfigStore = useWebConfigStore()
+const { WEBCONFIG } = useRefs(webConfigStore)
 const vcode = useVcode()
 const mobileVcode = useVcode() // 用于补充手机号的验证码
 const emit = defineEmits(['success', 'close'])
@@ -174,11 +176,16 @@ const getVcode = () => {
     }).catch(() => {
     })
 }
+
+// 动态获取登录背景图片URL
+const loginBackgroundImageUrl = computed(() => {
+    return WEBCONFIG.value?.login_background_image_url || '/fastmovie/static/image/login-image.png'
+})
 </script>
 <template>
     <div class="x-login">
         <div class="x-login-image">
-            <el-image src="/static/image/login-image.png" class="x-login-image-img" />
+            <el-image :src="loginBackgroundImageUrl" class="x-login-image-img" />
         </div>
         <div class="x-login-form">
             <el-icon class="x-login-form-close" @click="close">

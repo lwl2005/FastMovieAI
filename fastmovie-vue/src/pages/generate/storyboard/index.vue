@@ -244,6 +244,7 @@ const handleGenerateImage = () => {
     $http.post('/app/shortplay/api/Generate/storyboardImage', { ...currentStoryboardForm.value, prompt: currentStoryboardForm.value.image_prompt, model_id: model.value.id }).then((res: any) => {
         if (res.code === ResponseCode.SUCCESS) {
             currentStoryboard.value.image_state = 1;
+            getTaskList();
         } else {
             ElMessage.error(res.msg);
         }
@@ -270,6 +271,7 @@ const handleGenerateVideo = () => {
         if (res.code === ResponseCode.SUCCESS) {
             ElMessage.success(res.msg);
             currentStoryboard.value.video_state = 1;
+            getTaskList();
         } else {
             ElMessage.error(res.msg);
         }
@@ -366,6 +368,12 @@ const addListener = () => {
             findItem.image_state = 0;
             if (res.image) {
                 findItem.image = res.image;
+                findItem.use_material_type = 'image';
+            }else{
+                ElMessage.error('生成图片失败');
+            }
+            if (findItem.id === currentStoryboard.value.id) {
+                handleCurrentStoryboard(findItem);
             }
         }
     })
@@ -379,6 +387,11 @@ const addListener = () => {
                     if (res.image) {
                         find.image = res.image;
                         find.use_material_type = 'image';
+                    }else{
+                        ElMessage.error('生成图片失败');
+                    }
+                    if (find.id === currentStoryboard.value.id) {
+                        handleCurrentStoryboard(find);
                     }
                 }
                 break;
@@ -388,6 +401,11 @@ const addListener = () => {
                     if (res.video) {
                         find.video = res.video;
                         find.use_material_type = 'video';
+                    }else{
+                        ElMessage.error('生成视频失败');
+                    }
+                    if (find.id === currentStoryboard.value.id) {
+                        handleCurrentStoryboard(find);
                     }
                 }
                 break;
@@ -396,6 +414,8 @@ const addListener = () => {
                     find.narration_state = 0;
                     if (res.audio) {
                         find.narration_audio = res.audio;
+                    }else{
+                        ElMessage.error('生成旁白音频失败');
                     }
                 }
                 break;
@@ -408,6 +428,7 @@ const addListener = () => {
                         } else {
                             actor.character_look_id = null;
                             actor.character_look_state = 0;
+                            ElMessage.error('生成演员形象失败');
                         }
                     }
                 }
@@ -420,6 +441,7 @@ const addListener = () => {
                             actor.three_view_image = res.image;
                         } else {
                             actor.character_look_id = null;
+                            ElMessage.error('生成演员形象失败');
                         }
                         actor.character_look_state = 0;
                     }
@@ -431,6 +453,8 @@ const addListener = () => {
                     if (dialogue) {
                         if (res.audio) {
                             dialogue.audio = res.audio;
+                        }else{
+                            ElMessage.error('生成对话音频失败');
                         }
                         dialogue.voice_state = 0;
                     }
@@ -445,6 +469,8 @@ const addListener = () => {
             findItem.actor.status_enum = res.status;
             if (res.image) {
                 findItem.headimg = res.image;
+            }else{
+                ElMessage.error('生成演员形象失败');
             }
         }
     })
@@ -455,6 +481,8 @@ const addListener = () => {
             findItem.status_enum = res.status;
             if (res.image) {
                 findItem.three_view_image = res.image;
+            }else{
+                ElMessage.error('生成演员形象失败');
             }
         }
     })
@@ -465,6 +493,8 @@ const addListener = () => {
             findItem.prop.status_enum = res.status;
             if (res.image) {
                 findItem.prop.image = res.image;
+            }else{
+                ElMessage.error('生成物品失败');
             }
         }
     })
@@ -475,6 +505,8 @@ const addListener = () => {
             findItem.prop.status_enum = res.status;
             if (res.image) {
                 findItem.prop.three_view_image = res.image;
+            }else{
+                ElMessage.error('生成物品失败');
             }
         }
     })
@@ -1277,7 +1309,7 @@ const xlLoading = useLoading({
 const video = useCompsite({
     drama_id: drama_id.value,
     episode_id: episode_id.value,
-    output:drama_id.value + '_' + episode_id.value + '.mp4',
+    output: drama_id.value + '_' + episode_id.value + '.mp4',
 });
 video.on(COMPSITE_EVENTS.SAVE_FILE, (state?: any) => {
     if (state === true) {
@@ -1466,17 +1498,29 @@ defineExpose({
                         <div class="flex flex-column grid-gap-4 p-4 task-list" v-if="taskList.length > 0">
                             <div class="task-item" v-for="item in taskList" :key="item.id"
                                 :class="{ 'active': (currentStoryboard.use_material_type === 'image' && item.result.image_path === currentStoryboard.image) || (currentStoryboard.use_material_type === 'video' && item.result.video_path === currentStoryboard.video) }">
-                                <el-avatar :src="item.result.image_path" fit="contain" shape="square"
-                                    class="task-item-avatar">
-                                    <el-icon v-if="item.scene === 'storyboard_image'" size="30">
+                                <el-avatar :src="item.status === 'success' ? item.result.image_path : ''" fit="contain"
+                                    shape="square" class="task-item-avatar">
+                                    <el-icon v-if="item.status != 'success'" size="20" color="var(--el-color-info)">
+                                        <Loading class="circular" />
+                                    </el-icon>
+                                    <el-icon v-else-if="item.scene === 'storyboard_image'" size="30">
                                         <IconImageSvg />
                                     </el-icon>
-                                    <el-icon v-if="item.scene === 'storyboard_video'" size="30">
+                                    <el-icon v-else-if="item.scene === 'storyboard_video'" size="30">
                                         <IconVideoSvg />
                                     </el-icon>
                                 </el-avatar>
+                                <div class="position-absolute top-0 left-0 p-2"
+                                    v-if="item.status === 'success' && item.result.image_path">
+                                    <el-icon v-if="item.scene === 'storyboard_image'" size="16">
+                                        <IconImageSvg />
+                                    </el-icon>
+                                    <el-icon v-if="item.scene === 'storyboard_video'" size="16">
+                                        <IconVideoSvg />
+                                    </el-icon>
+                                </div>
                                 <div class="flex flex-center grid-gap-2 task-item-replace pointer"
-                                    v-if="(currentStoryboard.use_material_type === 'image' && item.result.image_path !== currentStoryboard.image) || (currentStoryboard.use_material_type === 'video' && item.result.video_path !== currentStoryboard.video)"
+                                    v-if="item.status === 'success' && ((currentStoryboard.use_material_type === 'image' && item.result.image_path !== currentStoryboard.image) || (currentStoryboard.use_material_type === 'video' && item.result.video_path !== currentStoryboard.video))"
                                     @click="currentTask = item">
                                 </div>
                             </div>
@@ -1514,8 +1558,10 @@ defineExpose({
                                         </template>
                                     </el-popconfirm>
                                 </div>
-                                <el-avatar class="montage-storyboard-list-item-image" :src="item.image" fit="contain"
-                                    v-loading="(item.image_state && item.image)" element-loading-text="图片生成中...">
+                                <el-avatar class="montage-storyboard-list-item-image bg-mosaic" :src="item.image"
+                                    :fit="['9:16', '16:9'].includes(dramaInfo.aspect_ratio) ? 'contain' : 'cover'"
+                                    v-loading="(item.image_state && item.image) || (item.video_state && item.image)"
+                                    element-loading-text="生成中...">
                                     <div class="flex flex-column grid-gap-1 flex-center">
                                         <div class="flex">
                                             <span class="flex flex-center grid-gap-2" v-if="item.image_state">
@@ -1570,7 +1616,7 @@ defineExpose({
                                 </el-popover>
                             </div>
                         </div>
-                        <div class="bg rounded-4 p-4">
+                        <div class="bg-overlay rounded-4 p-4">
                             背景音乐
                         </div>
                     </el-scrollbar>
@@ -1605,7 +1651,7 @@ defineExpose({
                                                     :size="16"></el-avatar>
                                                 <span class="h10 text-ellipsis-1" style="max-width: 60px;">{{
                                                     model.name
-                                                }}</span>
+                                                    }}</span>
                                                 <el-icon size="16" class="pointer" @click.stop="handleModelSelect()">
                                                     <Close />
                                                 </el-icon>
@@ -1809,7 +1855,7 @@ defineExpose({
                                                     :size="16"></el-avatar>
                                                 <span class="h10 text-ellipsis-1" style="max-width: 60px;">{{
                                                     videoModel.name
-                                                }}</span>
+                                                    }}</span>
                                                 <el-icon size="16" class="pointer"
                                                     @click.stop="handleVideoModelSelect()">
                                                     <Close />
@@ -1898,9 +1944,8 @@ defineExpose({
                         <div v-if="currentStoryboardForm.storyboard_id"
                             class="storyboard-form flex flex-column grid-gap-4 p-4">
                             <div class="flex flex-column grid-gap-2" v-if="dialogues?.length > 0">
-                                <div class="flex flex-center grid-gap-4 text-info pointer"
-                                    v-for="dialogue in dialogues" :key="dialogue.id"
-                                    @click="handleCurrentDialogue(dialogue)">
+                                <div class="flex flex-center grid-gap-4 text-info pointer" v-for="dialogue in dialogues"
+                                    :key="dialogue.id" @click="handleCurrentDialogue(dialogue)">
                                     <el-icon size="16"
                                         :color="currentDialogue?.id === dialogue.id ? 'var(--el-color-success)' : 'var(--el-color-info)'">
                                         <Loading class="circular" v-if="dialogue.voice_state" />
@@ -1975,7 +2020,7 @@ defineExpose({
                                                                 <span>情绪：</span>
                                                                 <span class="flex-1 text-info">{{
                                                                     currentDialogue.voice.selected_emotion?.label
-                                                                }}</span>
+                                                                    }}</span>
                                                                 <el-icon>
                                                                     <ArrowDown />
                                                                 </el-icon>
@@ -2000,7 +2045,7 @@ defineExpose({
                                                                 <span>语言：</span>
                                                                 <span class="flex-1 text-info">{{
                                                                     currentDialogue.voice.selected_language?.label
-                                                                }}</span>
+                                                                    }}</span>
                                                                 <el-icon>
                                                                     <ArrowDown />
                                                                 </el-icon>
@@ -2622,7 +2667,7 @@ defineExpose({
     --montage-storyboard-height: 240px;
     --montage-storyboard-toolbar-height: 80px;
     height: var(--montage-storyboard-height);
-    background: var(--el-bg-color-overlay);
+    background: var(--el-bg-color-page);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -2659,7 +2704,7 @@ defineExpose({
         flex-shrink: 0;
         width: calc(calc(var(--montage-storyboard-height) - var(--montage-storyboard-toolbar-height) - 10px) / 0.7);
         height: 100%;
-        background: var(--el-bg-color-page);
+        background: var(--el-bg-color-overlay);
         box-shadow: inset 0 0 0 2px transparent;
         display: flex;
         flex-direction: column;
@@ -2703,12 +2748,6 @@ defineExpose({
             width: 100%;
             height: 100%;
             border-radius: 4px;
-            background: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%),
-                linear-gradient(-45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, rgba(255, 255, 255, 0.15) 75%),
-                linear-gradient(-45deg, transparent 75%, rgba(255, 255, 255, 0.15) 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
         .button {

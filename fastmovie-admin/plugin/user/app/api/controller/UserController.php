@@ -25,6 +25,7 @@ use think\facade\Db;
 class UserController extends Basic
 {
     protected $notNeedTwofa = ['getTwofaList', 'refreshTwofaSecret'];
+    protected $notNeedLogin = ['checkInvitationCode'];
     public function info(Request $request)
     {
         $user = PluginUser::where(['id' => $request->uid])->find();
@@ -407,5 +408,29 @@ class UserController extends Basic
         $PluginUser->password = $password;
         $PluginUser->save();
         return $this->success('修改成功');
+    }
+
+    /**
+    * 验证邀请码是否被使用
+    * @author:1950781041@qq.com 
+    * @Date:2026-01-26
+    */
+    public function checkInvitationCode(Request $request)
+    {
+        $code = $request->post('code');
+        $PluginUserInvitationCode = PluginUserInvitationCode::where(['code' => $code])->find();
+        if (!$PluginUserInvitationCode) {
+            return $this->fail('邀请码不存在');
+        }
+        if($PluginUserInvitationCode->uid==$request->uid){
+            return $this->fail('不能邀请自己');
+        }
+        if(!empty($PluginUserInvitationCode->use_uid)){
+            return $this->fail('邀请码已使用');
+        }
+        if ($PluginUserInvitationCode->status != 'unused') {
+            return $this->fail('邀请码已使用');
+        }
+        return $this->success();
     }
 }

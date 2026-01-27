@@ -137,7 +137,7 @@ class ModelScene extends Enum
         ]
     ];
     const PROP_THREE_VIEW_IMAGE = [
-        'label' => '物品六视图',
+        'label' => '物品三视图',
         'value' => 'prop_three_view_image',
         'props' => [
             'type' => 'warning',

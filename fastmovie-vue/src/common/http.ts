@@ -12,6 +12,9 @@ if (import.meta.env.DEV) {
     baseURL = baseURL + '/local'
 } else if (import.meta.env.VITE_REQUEST_BASE_URL) {
     baseURL = import.meta.env.VITE_REQUEST_BASE_URL
+} else {
+    // 从meta中获取version
+    baseURL = document.querySelector('meta[name="base-url"]')?.getAttribute('content') || baseURL;
 }
 const getCompleteUrl = (path: string) => {
     return `${baseURL}/${path}`;

@@ -5,11 +5,9 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import en from 'element-plus/es/locale/lang/en';
 
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
 import { Push } from '@/common/push';
 import { $http } from './common/http';
 import { ResponseCode } from './common/const';
-import { useStorage } from '@/composables/useStorage';
 const { locale } = useI18n();
 
 const stateStore = useStateStore();
@@ -36,12 +34,6 @@ const { WEBCONFIG } = useRefs(webConfigStore);
 webConfigStore.initWebConfig();
 const modelStore = useModelStore();
 modelStore.initModel();
-// 获取地址栏参数 code 并存入缓存
-const route = useRoute();
-const storage = useStorage();
-if (route.query.code) {
-	storage.set('ICODE', route.query.code as string);
-}
 const { appContext } = getCurrentInstance()!
 const global = appContext.config.globalProperties
 const createPush = () => {

@@ -4,8 +4,14 @@
             <div class="flex flex-column grid-gap-1">
                 <div v-for="item in options" class="flex flex-y-center grid-gap-2 menu-item"
                     :class="{ 'menu-item-active': activeValue == item.value }" @click="onChange(item.value)">
-                    <el-icon :size="20">
-                        <component :is="item.icon" />
+                    <el-icon :size="16">
+                        <!-- <component :is="item.icon" /> -->
+                        <HelpSvg v-if="item.value === 'help'" />
+                        <UserSvg v-if="item.value === 'account'" />
+                        <BookSvg v-if="item.value === 'terms'" />
+                        <DunpaiSvg v-if="item.value === 'privacy'" />
+                        <AboutSvg v-if="item.value === 'about'" />
+                        <LogoutSvg v-if="item.value === 'logout'" />
                     </el-icon>
                     <span>{{ item.name }}</span>
                 </div>
@@ -31,15 +37,21 @@ import { ResponseCode } from '@/common/const';
 import User from './modules/xl-user.vue';
 import { useUserStore } from '@/stores';
 import router from '@/routers';
+import HelpSvg from '@/svg/icon/icon-help.vue';
+import UserSvg from '@/svg/icon/icon-user.vue';
+import BookSvg from '@/svg/icon/icon-book.vue';
+import DunpaiSvg from '@/svg/icon/icon-dunpai.vue';
+import AboutSvg from '@/svg/icon/icon-about.vue';
+import LogoutSvg from '@/svg/icon/icon-logout.vue';
 const html = ref(null);
 const activeValue = ref('account');
 const options = reactive([
-    { name: '账户', icon: 'User', value: 'account' },
-    { name: '帮助中心', icon: 'User', value: 'help' },
-    { name: '使用条款', icon: 'User', value: 'terms' },
-    { name: '隐私协议', icon: 'User', value: 'privacy' },
-    { name: '关于我们', icon: 'User', value: 'about' },
-    { name: '退出登录', icon: 'User', value: 'logout' },
+    { name: '账户', icon: 'UserSvg', value: 'account' },
+    { name: '帮助中心', icon: 'HelpSvg', value: 'help' },
+    { name: '使用条款', icon: 'BookSvg', value: 'terms' },
+    { name: '隐私协议', icon: 'DunpaiSvg', value: 'privacy' },
+    { name: '关于我们', icon: 'AboutSvg', value: 'about' },
+    { name: '退出登录', icon: 'LogoutSvg', value: 'logout' },
 ])
 const visible = ref(false);
 const userRef = ref<InstanceType<typeof User> | null>(null);

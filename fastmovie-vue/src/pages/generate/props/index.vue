@@ -525,7 +525,7 @@ onUnmounted(() => {
                                 <el-avatar :src="item.result.image_path" fit="contain" shape="square" :size="206">
                                 </el-avatar>
                                 <div class="flex flex-center grid-gap-2 task-item-replace pointer"
-                                    v-if="item.result.image_path !== currentPropForm.image"
+                                    v-if="item.status==='success'&&item.result.image_path !== currentPropForm.image"
                                     @click="handleReplaceProp(item)">
                                     <el-icon>
                                         <Loading class="circular" v-if="replacePropLoading" />

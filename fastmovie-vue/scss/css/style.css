@@ -215,6 +215,15 @@ a {
   text-shadow: none !important;
 }
 
+.el-loading-parent--relative .el-loading-spinner {
+  --el-loading-spinner-size: 20px;
+  --el-color-primary: #FFFFFF;
+}
+
+.el-loading-parent--relative .el-loading-spinner .el-loading-text {
+  font-size: 12px;
+}
+
 .action-dialog {
   --el-dialog-border-radius: 10px;
   --el-messagebox-font-size: 14px;
@@ -530,10 +539,10 @@ a {
 
 .tabs-segmented.el-segmented {
   --el-border-radius-base: 8px;
-  --el-segmented-bg-color:rgba(30, 30, 30, 0.4);
-  --el-border-color:rgba(255, 255, 255, 0.3);
-  --el-segmented-item-hover-bg-color:rgba(255, 255, 255, 0.1);
-  --el-segmented-item-active-bg-color:rgba(255, 255, 255, 0.1);
+  --el-segmented-bg-color: rgba(30, 30, 30, 0.4) !important;
+  --el-border-color: rgba(255, 255, 255, 0.3);
+  --el-segmented-item-hover-bg-color: rgba(255, 255, 255, 0.1);
+  --el-segmented-item-active-bg-color: rgba(255, 255, 255, 0.1);
   --el-segmented-padding: 4px;
   --el-segmented-item-selected-color: var(--el-bg-color);
   --el-segmented-item-selected-bg-color: #FFFFFF;

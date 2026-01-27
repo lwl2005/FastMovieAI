@@ -24,7 +24,6 @@ class PluginFinanceWallet extends Basic
     }
     public static function onAfterUpdate($model)
     {
-        p('onAfterUpdate', $model->id);
         Push::send([
             'uid' => $model->uid,
             'channels_uid' => $model->channels_uid,

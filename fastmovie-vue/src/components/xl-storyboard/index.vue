@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<{
 });
 const emit = defineEmits(['select']);
 const StoryboardSearch = reactive({
-    type: 'all',
+    type: 'episode',
     description: '',
     ...props.query,
 })
@@ -41,8 +41,8 @@ defineExpose({
         <el-form class="flex flex-center grid-gap-4" @submit.prevent="getStoryboardList">
             <el-form-item class="mb-0">
                 <xl-tabs v-model="StoryboardSearch.type" class="text-info" @change="getStoryboardList">
-                    <xl-tabs-item value="all">全部</xl-tabs-item>
                     <xl-tabs-item value="episode">本集</xl-tabs-item>
+                    <xl-tabs-item value="all">全部</xl-tabs-item>
                 </xl-tabs>
             </el-form-item>
             <div class="flex-1"></div>

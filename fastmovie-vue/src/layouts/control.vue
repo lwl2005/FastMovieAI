@@ -107,7 +107,7 @@ const getVideoType = (url: string): string => {
 
 // 动态获取背景视频地址
 const backgroundVideoUrl = computed(() => {
-    return WEBCONFIG.value?.project_background_video_url || '/static/image/bg.mov'
+    return WEBCONFIG.value?.project_background_video_url || '/fastmovie/static/image/bg.mov'
 })
 
 // 获取视频类型
@@ -147,7 +147,7 @@ onMounted(() => {
     <div class="control-layouts" :class="{ 'bg ': $route.path === '/' }">
         <!-- 背景视频 -->
         <video ref="videoRef" v-show="$route.path === '/' && backgroundVideoUrl" preload="metadata"
-            class="control-layouts-bg-video" autoplay loop muted playsinline poster="/static/image/bg.jpg">
+            class="control-layouts-bg-video" autoplay loop muted playsinline>
             <source :src="backgroundVideoUrl" :type="videoType">
         </video>
         <transition name="blur-fade">

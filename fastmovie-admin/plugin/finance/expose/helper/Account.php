@@ -31,10 +31,15 @@ class Account
     {
         $wallet = PluginFinanceWallet::where('uid', $uid)
             ->where('channels_uid', $channels_uid)
-            ->lock(true)
             ->find();
         if (!$wallet) {
-            throw new \Exception('钱包不存在');
+            $wallet = new PluginFinanceWallet();
+            $wallet->uid = $uid;
+            $wallet->channels_uid = $channels_uid;
+            $wallet->save();
+            $wallet = PluginFinanceWallet::where('uid', $uid)
+                ->where('channels_uid', $channels_uid)
+                ->find();
         }
         $validity_period = empty($valid_time) ? ValidityPeriod::PERMANENT['value'] : ValidityPeriod::TEMPORARY['value'];
 
@@ -51,19 +56,19 @@ class Account
         //永久积只累加
         if ($validity_period === ValidityPeriod::PERMANENT['value']) {
             $log->before = $wallet->points;
-            $wallet->points += $amount;
+            $log->after = $wallet->points + $amount;
+            $wallet->points = Db::raw('points+' . $amount);
             if ($is_accumulate) {
-                $wallet->points_sum += $amount;
+                $wallet->points_sum = Db::raw('points_sum + ' . $amount);
             }
-            $log->after = $wallet->points;
         } else {
             $log->before = $wallet->tmp_points;
-            $wallet->tmp_points += $amount;
+            $log->after = $wallet->tmp_points + $amount;
+            $wallet->tmp_points = Db::raw('tmp_points + ' . $amount);
             if ($is_accumulate) {
-                $wallet->tmp_points_sum += $amount;
+                $wallet->tmp_points_sum = Db::raw('tmp_points_sum + ' . $amount);
             }
 
-            $log->after = $wallet->tmp_points;
             $userPoints = new PluginUserPoints();
             $userPoints->channels_uid = $channels_uid;
             $userPoints->uid = $uid;

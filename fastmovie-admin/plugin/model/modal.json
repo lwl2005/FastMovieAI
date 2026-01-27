@@ -195,17 +195,17 @@
         "description": "物品图"
     },
     {
-        "name": "物品六视图",
+        "name": "物品三视图",
         "model_type": "draw",
         "model_id": 4,
         "model_name": "Banono-Pro",
         "assistant_id": 10,
-        "assistant_name": "物品六视图",
+        "assistant_name": "物品三视图",
         "scene": "prop_three_view_image",
         "point": 1,
         "state": 1,
         "sort": 0,
-        "description": "物品六视图"
+        "description": "物品三视图"
     },
     {
         "name": "DeepSeek",
