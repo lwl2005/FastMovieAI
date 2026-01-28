@@ -1,4 +1,4 @@
-<div align="center">
+1<div align="center">
 
 <img src="./readme_assets/banner.png" alt="FastMovieAI Banner" width="100%" />
 
