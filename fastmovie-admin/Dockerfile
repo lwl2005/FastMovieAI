@@ -4,7 +4,7 @@ LABEL maintainer="FastMovieAI Team"
 
 WORKDIR /var/www/html
 
-# 安装系统依赖
+# 安装系统依赖（包含构建工具）
 RUN apk add --no-cache \
     libpng-dev \
     libjpeg-turbo-dev \
@@ -19,7 +19,11 @@ RUN apk add --no-cache \
     ffmpeg \
     ffmpeg-dev \
     composer \
-    supervisor
+    supervisor \
+    autoconf \
+    g++ \
+    make \
+    libevent-dev
 
 # 安装 PHP 扩展
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
