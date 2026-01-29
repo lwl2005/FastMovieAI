@@ -23,7 +23,9 @@ RUN apk add --no-cache \
     autoconf \
     g++ \
     make \
-    libevent-dev
+    libevent-dev \
+    openssl-dev \
+    pkgconfig
 
 # 安装 PHP 扩展
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
