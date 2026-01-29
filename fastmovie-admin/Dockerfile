@@ -41,8 +41,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     sockets \
     simplexml \
     xml \
-    dom \
-    fileinfo
+    dom
 
 # 安装 Redis 扩展
 RUN pecl install redis \
